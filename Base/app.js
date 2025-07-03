@@ -1492,6 +1492,24 @@ function mostrarSistema() {
     }, 300);
 }
 
+// Función para obtener el nombre del asesor desde la URL
+function getAsesorName() {
+    const path = window.location.pathname;
+    const segments = path.split('/').filter(segment => segment.length > 0);
+    
+    // Si estamos en la raíz o en una carpeta específica
+    if (segments.length > 0) {
+        const lastSegment = segments[segments.length - 1];
+        // Si el último segmento no es un archivo (no tiene extensión)
+        if (!lastSegment.includes('.')) {
+            return lastSegment;
+        }
+    }
+    
+    // Si no se puede determinar, usar 'Base'
+    return 'Base';
+}
+
 // Función para inicializar el sistema después del login
 function inicializarSistema() {
     // Cargar datos guardados
@@ -1502,6 +1520,13 @@ function inicializarSistema() {
     
     // Cargar multiplicadores
     loadMultipliersV2();
+    
+    // Mostrar nombre del asesor
+    const asesorName = getAsesorName();
+    const asesorElement = document.getElementById('statAsesor');
+    if (asesorElement) {
+        asesorElement.textContent = asesorName;
+    }
     
     // Mostrar mensaje de bienvenida
     setTimeout(() => {
