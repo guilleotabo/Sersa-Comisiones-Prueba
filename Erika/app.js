@@ -1,7 +1,104 @@
-// Cargar configuración desde config.js o localStorage
-        function getConfig() {
+// Configuración de la API
+        const API_BASE_URL = 'http://localhost:3000/api';
+        let cachedConfig = null;
+        let configLoaded = false;
+
+        // Cargar configuración desde API o fallback a localStorage/config.js
+        async function getConfig() {
+            // Si ya tenemos la configuración en caché, retornarla
+            if (cachedConfig && configLoaded) {
+                return cachedConfig;
+            }
+
+            try {
+                // Obtener nombre del asesor desde la URL
+                const asesorName = getAsesorName();
+                
+                // Intentar cargar desde la API
+                const response = await fetch(`${API_BASE_URL}/config/${asesorName}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        cachedConfig = data.data.config_data;
+                        configLoaded = true;
+                        console.log(`✅ Configuración cargada desde API para ${asesorName}`);
+                        return cachedConfig;
+                    }
+                }
+                
+                // Si la API falla, usar fallback
+                console.warn(`⚠️ API no disponible, usando configuración local para ${asesorName}`);
+                return getConfigFallback();
+                
+            } catch (error) {
+                console.error('❌ Error cargando configuración desde API:', error);
+                return getConfigFallback();
+            }
+        }
+
+        // Función de fallback para cargar configuración local
+        function getConfigFallback() {
             const savedConfig = localStorage.getItem('comisionesConfig');
-            return savedConfig ? JSON.parse(savedConfig) : CONFIG;
+            if (savedConfig) {
+                try {
+                    const parsed = JSON.parse(savedConfig);
+                    console.log('📁 Usando configuración desde localStorage');
+                    return parsed;
+                } catch (e) {
+                    console.error('❌ Error parseando localStorage:', e);
+                }
+            }
+            
+            console.log('📁 Usando configuración por defecto (config.js)');
+            return CONFIG;
+        }
+
+        // Función para guardar configuración en la API
+        async function saveConfigToAPI(configData) {
+            try {
+                const asesorName = getAsesorName();
+                const response = await fetch(`${API_BASE_URL}/config/${asesorName}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        categoria: getAsesorCategoria(asesorName),
+                        config_data: configData
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        console.log('✅ Configuración guardada en API exitosamente');
+                        cachedConfig = configData;
+                        return true;
+                    }
+                }
+                
+                console.error('❌ Error guardando en API:', response.statusText);
+                return false;
+                
+            } catch (error) {
+                console.error('❌ Error de conexión al guardar en API:', error);
+                return false;
+            }
+        }
+
+        // Función para obtener categoría del asesor
+        function getAsesorCategoria(nombreAsesor) {
+            const categorias = {
+                'Base': 'Template',
+                'Alejandra': 'Agil',
+                'Aletzia': 'Agil',
+                'Erika': 'Agil_Recupero',
+                'Maximiliano': 'Empresarial',
+                'Micaela': 'Agil',
+                'Rodrigo': 'Empresarial'
+            };
+            return categorias[nombreAsesor] || 'Sin_Categoria';
         }
         
         // Obtener configuración actual
@@ -1440,7 +1537,7 @@ function updateMultiplierPreview(multipliers) {
 // ========================================
 
 // Contraseña del sistema
-const SISTEMA_PASSWORD = "comercial2029";
+const SISTEMA_PASSWORD = "comercial2020";
 
 // Función para verificar contraseña
 function verificarContrasena() {
@@ -1492,21 +1589,92 @@ function mostrarSistema() {
     }, 300);
 }
 
+// Función para obtener el nombre del asesor desde la URL
+function getAsesorName() {
+    const path = window.location.pathname;
+    const segments = path.split('/').filter(segment => segment.length > 0);
+    
+    // Si estamos en la raíz o en una carpeta específica
+    if (segments.length > 0) {
+        const lastSegment = segments[segments.length - 1];
+        // Si el último segmento no es un archivo (no tiene extensión)
+        if (!lastSegment.includes('.')) {
+            return lastSegment;
+        }
+    }
+    
+    // Si no se puede determinar, usar 'Base'
+    return 'Base';
+}
+
 // Función para inicializar el sistema después del login
-function inicializarSistema() {
-    // Cargar datos guardados
-    loadData();
-    
-    // Actualizar cálculos
-    updateCalculations();
-    
-    // Cargar multiplicadores
-    loadMultipliersV2();
-    
-    // Mostrar mensaje de bienvenida
-    setTimeout(() => {
-        mostrarMensajeBienvenida();
-    }, 500);
+async function inicializarSistema() {
+    try {
+        console.log('🚀 Inicializando sistema...');
+        
+        // Cargar configuración desde API
+        const config = await getConfig();
+        
+        // Actualizar variables globales con la configuración cargada
+        window.niveles = config.niveles;
+        window.iconos = config.iconos;
+        window.metas = config.metas;
+        window.pagos = config.pagos;
+        window.multiplicadores = config.multiplicadores;
+        
+        // Calcular máximo subtotal dinámicamente
+        window.MAXIMO_SUBTOTAL = config.base + 
+            pagos.carrera[5] + 
+            pagos.montoInterno[5] + 
+            pagos.montoExterno[5] + 
+            pagos.montoRecuperado[5] + 
+            pagos.cantidad[5] + 
+            pagos.equipo[5];
+        
+        // Cargar datos guardados
+        loadData();
+        
+        // Actualizar cálculos
+        updateCalculations();
+        
+        // Cargar multiplicadores
+        loadMultipliersV2();
+        
+        // Mostrar nombre del asesor
+        const asesorName = getAsesorName();
+        const asesorElement = document.getElementById('statAsesor');
+        if (asesorElement) {
+            asesorElement.textContent = asesorName;
+        }
+        
+        console.log('✅ Sistema inicializado correctamente');
+        
+        // Mostrar mensaje de bienvenida
+        setTimeout(() => {
+            mostrarMensajeBienvenida();
+        }, 500);
+        
+    } catch (error) {
+        console.error('❌ Error inicializando sistema:', error);
+        // Fallback: usar configuración local
+        const config = getConfigFallback();
+        window.niveles = config.niveles;
+        window.iconos = config.iconos;
+        window.metas = config.metas;
+        window.pagos = config.pagos;
+        window.multiplicadores = config.multiplicadores;
+        
+        // Continuar con la inicialización
+        loadData();
+        updateCalculations();
+        loadMultipliersV2();
+        
+        const asesorName = getAsesorName();
+        const asesorElement = document.getElementById('statAsesor');
+        if (asesorElement) {
+            asesorElement.textContent = asesorName;
+        }
+    }
 }
 
 // Función para mostrar mensaje de bienvenida
@@ -1739,7 +1907,7 @@ function getAdminConfig() {
 // ===== FUNCIONES DE ADMINISTRACIÓN AVANZADAS =====
 
 // Validar y guardar configuración
-function validateAndSaveConfig() {
+async function validateAndSaveConfig() {
     showAdminMessage('Validando configuración...', 'info');
     
     try {
@@ -1752,13 +1920,19 @@ function validateAndSaveConfig() {
             return;
         }
         
-        // Guardar configuración
-        localStorage.setItem('comisionesConfig', JSON.stringify(config));
+        // Intentar guardar en la API primero
+        const apiSaved = await saveConfigToAPI(config);
+        
+        if (apiSaved) {
+            showAdminMessage('✅ Configuración guardada en la base de datos exitosamente', 'success');
+        } else {
+            // Fallback: guardar en localStorage
+            localStorage.setItem('comisionesConfig', JSON.stringify(config));
+            showAdminMessage('⚠️ Configuración guardada localmente (API no disponible)', 'warning');
+        }
         
         // Actualizar cálculos
         updateCalculations();
-        
-        showAdminMessage('✅ Configuración guardada exitosamente', 'success');
         
         // Auto-cerrar mensaje después de 3 segundos
         setTimeout(() => hideAdminMessage(), 3000);
