@@ -59,6 +59,41 @@ npm start
 - `GET /` - Información de la API
 - `GET /health` - Health check del servidor
 
+## 🔄 Scripts de Migración
+
+### Migración de datos existentes
+```bash
+# Migrar configuraciones desde archivos config.js
+node scripts/migrate.js migrate
+
+# Verificar configuraciones existentes
+node scripts/migrate.js verify
+
+# Limpiar todas las configuraciones (¡CUIDADO!)
+node scripts/migrate.js clean
+```
+
+### Datos de prueba
+```bash
+# Insertar datos de prueba básicos
+node scripts/seed.js seed
+
+# Crear configuración personalizada para Erika
+node scripts/seed.js erika
+```
+
+### Verificación de datos
+```bash
+# Verificar todas las configuraciones
+node scripts/verify.js all
+
+# Verificar configuración específica
+node scripts/verify.js asesor Alejandra
+
+# Comparar dos configuraciones
+node scripts/verify.js compare Alejandra Erika
+```
+
 ## 📝 Ejemplos de Uso
 
 ### Obtener configuración de un asesor
