@@ -164,41 +164,41 @@
             Haz clic en tu nombre para ingresar a tu sistema personalizado. Cada asesor tiene su propia contraseña y configuración. Si eres administrador, usa la opción "Base (Template)" para crear nuevos asesores.
         </div>
         <div class="asesores-grid">
-            <a href="Base/" class="asesor-card template-card">
+            <div class="asesor-card template-card" onclick="seleccionarAsesor('Base')">
                 <span class="asesor-icon">📊</span>
                 <div class="asesor-name">Base (Template)</div>
                 <div class="asesor-desc">Sistema base para crear nuevos asesores</div>
-            </a>
-            <a href="Alejandra/" class="asesor-card">
+            </div>
+            <div class="asesor-card" onclick="seleccionarAsesor('Alejandra')">
                 <span class="asesor-icon">👩‍💼</span>
                 <div class="asesor-name">Alejandra</div>
                 <div class="asesor-desc">(Ágil)</div>
-            </a>
-            <a href="Aletzia/" class="asesor-card">
+            </div>
+            <div class="asesor-card" onclick="seleccionarAsesor('Aletzia')">
                 <span class="asesor-icon">👩‍💼</span>
                 <div class="asesor-name">Aletzia</div>
                 <div class="asesor-desc">(Ágil)</div>
-            </a>
-            <a href="Erika/" class="asesor-card">
+            </div>
+            <div class="asesor-card" onclick="seleccionarAsesor('Erika')">
                 <span class="asesor-icon">👩‍💼</span>
                 <div class="asesor-name">Erika</div>
                 <div class="asesor-desc">(Ágil / Recupero)</div>
-            </a>
-            <a href="Maximiliano/" class="asesor-card">
+            </div>
+            <div class="asesor-card" onclick="seleccionarAsesor('Maximiliano')">
                 <span class="asesor-icon">👨‍💼</span>
                 <div class="asesor-name">Maximiliano</div>
                 <div class="asesor-desc">(Empresarial)</div>
-            </a>
-            <a href="Micaela/" class="asesor-card">
+            </div>
+            <div class="asesor-card" onclick="seleccionarAsesor('Micaela')">
                 <span class="asesor-icon">👩‍💼</span>
                 <div class="asesor-name">Micaela</div>
                 <div class="asesor-desc">(Ágil)</div>
-            </a>
-            <a href="Rodrigo/" class="asesor-card">
+            </div>
+            <div class="asesor-card" onclick="seleccionarAsesor('Rodrigo')">
                 <span class="asesor-icon">👨‍💼</span>
                 <div class="asesor-name">Rodrigo</div>
                 <div class="asesor-desc">(Empresarial)</div>
-            </a>
+            </div>
         </div>
         <div class="footer">
             <div class="contacto">¿Dudas o sugerencias? Contáctanos: <a href="mailto:TI@sesa.com.py">TI@sesa.com.py</a></div>
@@ -206,5 +206,305 @@
             <p style="margin-top:18px;">&copy; 2024 SERSA SAECA - Sistema de Comisiones Comerciales</p>
         </div>
     </div>
+
+    <!-- Modal de Login -->
+    <div id="loginModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔐 Acceso al Sistema</h2>
+                <span class="close" onclick="cerrarModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="asesor-seleccionado">
+                    <span id="asesorIcon" class="asesor-icon-modal">👤</span>
+                    <h3 id="asesorNombre">Asesor</h3>
+                    <p id="asesorCategoria">Categoría</p>
+                </div>
+                <div class="login-form">
+                    <div class="input-group">
+                        <label for="passwordInput">Contraseña:</label>
+                        <input type="password" id="passwordInput" placeholder="Ingresa tu contraseña" maxlength="20">
+                    </div>
+                    <div class="button-group">
+                        <button onclick="ingresarSistema()" class="btn-primary">Ingresar</button>
+                        <button onclick="cerrarModal()" class="btn-secondary">Cancelar</button>
+                    </div>
+                    <div id="loginError" class="error-message" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Estilos para el modal */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .asesor-seleccionado {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .asesor-icon-modal {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .asesor-seleccionado h3 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .asesor-seleccionado p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary, .btn-secondary {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .btn-secondary {
+            background: #f1f3f4;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e8eaed;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Hacer las tarjetas clickeables */
+        .asesor-card {
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        // Variables globales
+        let asesorSeleccionado = null;
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        // Mapeo de iconos por asesor
+        const ICONOS_ASESORES = {
+            'Base': '📊',
+            'Alejandra': '👩‍💼',
+            'Aletzia': '👩‍💼',
+            'Erika': '👩‍💼',
+            'Maximiliano': '👨‍💼',
+            'Micaela': '👩‍💼',
+            'Rodrigo': '👨‍💼'
+        };
+
+        // Mapeo de categorías por asesor
+        const CATEGORIAS_ASESORES = {
+            'Base': 'Template',
+            'Alejandra': 'Agil',
+            'Aletzia': 'Agil',
+            'Erika': 'Agil / Recupero',
+            'Maximiliano': 'Empresarial',
+            'Micaela': 'Agil',
+            'Rodrigo': 'Empresarial'
+        };
+
+        // Función para seleccionar asesor
+        function seleccionarAsesor(nombreAsesor) {
+            asesorSeleccionado = nombreAsesor;
+            
+            // Actualizar modal
+            document.getElementById('asesorIcon').textContent = ICONOS_ASESORES[nombreAsesor] || '👤';
+            document.getElementById('asesorNombre').textContent = nombreAsesor;
+            document.getElementById('asesorCategoria').textContent = CATEGORIAS_ASESORES[nombreAsesor] || 'Sin categoría';
+            
+            // Mostrar modal
+            document.getElementById('loginModal').style.display = 'flex';
+            
+            // Focus en el campo de contraseña
+            setTimeout(() => {
+                document.getElementById('passwordInput').focus();
+            }, 100);
+        }
+
+        // Función para cerrar modal
+        function cerrarModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('loginError').style.display = 'none';
+            asesorSeleccionado = null;
+        }
+
+        // Función para ingresar al sistema
+        async function ingresarSistema() {
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            // Validar contraseña (por ahora, cualquier contraseña es válida)
+            if (!password) {
+                mostrarError('Por favor, ingresa una contraseña');
+                return;
+            }
+            
+            try {
+                // Verificar si la configuración existe en la base de datos
+                const response = await fetch(`${API_BASE_URL}/config/${asesorSeleccionado}`);
+                
+                if (response.ok) {
+                    // Configuración existe, redirigir al sistema
+                    window.location.href = `${asesorSeleccionado}/`;
+                } else {
+                    // Configuración no existe, mostrar error
+                    mostrarError('Configuración no encontrada para este asesor. Contacta al administrador.');
+                }
+                
+            } catch (error) {
+                console.error('Error verificando configuración:', error);
+                // Si hay error de conexión, permitir acceso (modo offline)
+                window.location.href = `${asesorSeleccionado}/`;
+            }
+        }
+
+        // Función para mostrar errores
+        function mostrarError(mensaje) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = mensaje;
+            errorDiv.style.display = 'block';
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enter key en el campo de contraseña
+            document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    ingresarSistema();
+                }
+            });
+            
+            // Cerrar modal al hacer clic fuera
+            document.getElementById('loginModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    cerrarModal();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
