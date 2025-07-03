@@ -50,6 +50,24 @@ app.get('/health', (req, res) => {
     });
 });
 
+// Health check específico para la API
+app.get('/api/health', (req, res) => {
+    res.json({
+        success: true,
+        status: 'healthy',
+        service: 'SERSA Comisiones API',
+        version: '1.0.0',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        database: 'PostgreSQL',
+        endpoints: {
+            config: '/api/config/:asesor',
+            asesores: '/api/asesores',
+            health: '/api/health'
+        }
+    });
+});
+
 // Middleware de manejo de errores
 app.use((err, req, res, next) => {
     console.error('Error no manejado:', err);
