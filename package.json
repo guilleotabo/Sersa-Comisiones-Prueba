@@ -1,0 +1,82 @@
+{
+  "name": "sersa-comisiones-system",
+  "version": "1.0.0",
+  "description": "Sistema de Comisiones Comerciales SERSA - Frontend y Backend",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "install-all": "cd backend && npm install",
+    "security-update": "node backend/scripts/update-security.js",
+    "test": "cd backend && npm test",
+    "lint": "eslint . --ext .js --ignore-path .gitignore",
+    "lint:fix": "eslint . --ext .js --fix --ignore-path .gitignore",
+    "format": "prettier --write '**/*.{js,html,css,md}' --ignore-path .gitignore",
+    "format:check": "prettier --check '**/*.{js,html,css,md}' --ignore-path .gitignore",
+    "audit": "cd backend && npm audit",
+    "clean": "node backend/scripts/clean.js",
+    "migrate": "node backend/scripts/migrate.js migrate",
+    "verify": "node backend/scripts/verify.js",
+    "deploy:dev": "node backend/scripts/deploy.js development",
+    "deploy:prod": "node backend/scripts/deploy.js production"
+  },
+  "keywords": [
+    "comisiones",
+    "sersa",
+    "sales",
+    "commission",
+    "nodejs",
+    "postgresql"
+  ],
+  "author": "SERSA SAECA",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "^3.0.3"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "node": true,
+      "es2022": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "prettier"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2022,
+      "sourceType": "module"
+    },
+    "rules": {
+      "no-console": "warn",
+      "no-unused-vars": "warn",
+      "no-var": "error",
+      "prefer-const": "error",
+      "eqeqeq": "error",
+      "no-eval": "error",
+      "no-implied-eval": "error",
+      "no-new-func": "error",
+      "no-script-url": "error",
+      "no-alert": "warn"
+    },
+    "ignorePatterns": [
+      "node_modules/",
+      "backend/logs/",
+      "*.backup.*",
+      "*.min.js"
+    ]
+  },
+  "prettier": {
+    "semi": true,
+    "trailingComma": "es5",
+    "singleQuote": true,
+    "printWidth": 100,
+    "tabWidth": 2,
+    "useTabs": false
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

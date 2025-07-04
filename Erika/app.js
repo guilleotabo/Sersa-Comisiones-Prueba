@@ -1537,28 +1537,54 @@ function updateMultiplierPreview(multipliers) {
 // ========================================
 
 // Contraseña del sistema
-const SISTEMA_PASSWORD = "comercial2020";
-
 // Función para verificar contraseña
-function verificarContrasena() {
+async function verificarContrasena() {
     const passwordInput = document.getElementById('password-input');
     const errorDiv = document.getElementById('login-error');
     const password = passwordInput.value.trim();
     
-    if (password === SISTEMA_PASSWORD) {
-        // Contraseña correcta
-        mostrarSistema();
-    } else {
-        // Contraseña incorrecta
-        mostrarError("❌ Contraseña incorrecta");
+    if (!password) {
+        mostrarError("❌ Por favor ingrese una contraseña");
+        return;
+    }
+    
+    // Mostrar indicador de carga
+    mostrarError("🔄 Verificando contraseña...");
+    passwordInput.disabled = true;
+    
+    try {
+        // Usar el sistema de autenticación segura
+        const result = await window.secureValidateSystemPassword(password);
+        
+        if (result.success) {
+            // Contraseña correcta
+            mostrarSistema();
+        } else {
+            // Contraseña incorrecta o error
+            mostrarError(result.message || "❌ Contraseña incorrecta");
+            passwordInput.value = '';
+            passwordInput.focus();
+            
+            // Agregar animación de error
+            passwordInput.style.borderColor = '#d32f2f';
+            setTimeout(() => {
+                passwordInput.style.borderColor = '#e0e0e0';
+            }, 2000);
+            
+            // Si hay tiempo de bloqueo, mostrar información adicional
+            if (result.lockoutTime) {
+                setTimeout(() => {
+                    mostrarError(`🔒 Cuenta bloqueada por ${result.lockoutTime} minutos`);
+                }, 1000);
+            }
+        }
+    } catch (error) {
+        console.error('Error en verificación de contraseña:', error);
+        mostrarError("❌ Error de conexión. Intente nuevamente.");
         passwordInput.value = '';
         passwordInput.focus();
-        
-        // Agregar animación de error
-        passwordInput.style.borderColor = '#d32f2f';
-        setTimeout(() => {
-            passwordInput.style.borderColor = '#e0e0e0';
-        }, 2000);
+    } finally {
+        passwordInput.disabled = false;
     }
 }
 
@@ -2340,8 +2366,9 @@ function toggleAdminPanel() {
     
     // Solicitar contraseña de administrador
     const password = prompt('🔐 Ingrese la contraseña de administrador:');
-    if (password === 'gtadmin') {
-        openAdminPanel();
+    if (password !== null) {
+        // Validar con sistema seguro
+        validateAdminPasswordAndOpenPanel(password);
     } else if (password !== null) {
         alert('❌ Contraseña incorrecta');
     }

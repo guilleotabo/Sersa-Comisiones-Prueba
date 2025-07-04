@@ -5,6 +5,7 @@ require('dotenv').config({ path: './config.env' });
 const { testConnection, createTable } = require('./database');
 const configRoutes = require('./routes/config');
 const asesoresRoutes = require('./routes/asesores');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
 // Rutas
 app.use('/api/config', configRoutes);
 app.use('/api/asesores', asesoresRoutes);
+app.use('/api/auth', authRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
@@ -35,7 +37,8 @@ app.get('/', (req, res) => {
         endpoints: {
             configuraciones: '/api/config/:asesor',
             asesores: '/api/asesores',
-            health: '/api/asesores/health'
+            auth: '/api/auth',
+            health: '/api/health'
         },
         timestamp: new Date().toISOString()
     });
@@ -63,6 +66,7 @@ app.get('/api/health', (req, res) => {
         endpoints: {
             config: '/api/config/:asesor',
             asesores: '/api/asesores',
+            auth: '/api/auth',
             health: '/api/health'
         }
     });
