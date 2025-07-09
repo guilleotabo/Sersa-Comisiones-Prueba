@@ -79,6 +79,12 @@
             transform: translateY(-2px);
             box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
         }
+        .admin-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        .admin-btn:hover {
+            box-shadow: 0 12px 40px 0 rgba(231, 76, 60, 0.25);
+        }
         .footer {
             margin-top: 32px;
             padding-top: 24px;
@@ -112,9 +118,14 @@
             Cada asesor tiene su configuración personalizada y acceso seguro con contraseña.
         </div>
         
-        <button class="enter-btn" onclick="entrarSistema()">
-            🚀 Entrar al Sistema
-        </button>
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+            <button class="enter-btn" onclick="entrarSistema()">
+                🎁 Entrar al Sistema
+            </button>
+            <button class="enter-btn admin-btn" onclick="entrarAdministracion()">
+                🛠️ Administración
+            </button>
+        </div>
         
         <div class="footer">
             <div class="contacto">¿Dudas o sugerencias? Contáctanos: <a href="mailto:ti1@sersa.com.py">ti1@sersa.com.py</a></div>
@@ -126,6 +137,11 @@
         function entrarSistema() {
             // Redirigir a la carpeta app donde está el sistema de asesores
             window.location.href = 'app/';
+        }
+        
+        function entrarAdministracion() {
+            // Redirigir a la carpeta administracion
+            window.location.href = 'administracion/';
         }
     </script>
 </body>

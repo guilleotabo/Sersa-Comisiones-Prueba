@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛠️ Panel de Administración</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --admin-gradient: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            --admin-light: #f8f9fa;
+            --admin-dark: #2c3e50;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --success: #27ae60;
+            --warning: #f39c12;
+            --info: #3498db;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #ecf0f1;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .header {
+            background: var(--admin-gradient);
+            color: white;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .btn-danger {
+            background: #c0392b;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #a93226;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--admin-dark);
+        }
+        .card-description {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .card-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--admin-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .card-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        .stat-success { color: var(--success); }
+        .stat-warning { color: var(--warning); }
+        .stat-info { color: var(--info); }
+        .stat-danger { color: #e74c3c; }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1 class="header-title">🛠️ Panel de Administración</h1>
+            <div class="header-actions">
+                <span id="adminWelcome">Bienvenido, Administrador</span>
+                <a href="../app/" class="btn btn-secondary">🎁 Ver Sistema</a>
+                <button class="btn btn-danger" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number stat-info" id="totalAsesores">9</div>
+                <div class="stat-label">Total Asesores</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-success" id="asesorActivos">9</div>
+                <div class="stat-label">Asesores Activos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-warning" id="configuracionesTotal">9</div>
+                <div class="stat-label">Configuraciones</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-danger" id="ultimaActualizacion">Hoy</div>
+                <div class="stat-label">Última Actualización</div>
+            </div>
+        </div>
+
+        <!-- Dashboard Principal -->
+        <div class="dashboard-grid">
+            <!-- Gestión de Asesores -->
+            <div class="card">
+                <div class="card-icon">👥</div>
+                <h3 class="card-title">Gestión de Asesores</h3>
+                <p class="card-description">
+                    Crear, editar y eliminar asesores del sistema. Gestiona la información básica y el estado de cada asesor.
+                </p>
+                <button class="card-btn" onclick="irAGestionAsesores()">
+                    Gestionar Asesores
+                </button>
+            </div>
+
+            <!-- Gestión de Contraseñas -->
+            <div class="card">
+                <div class="card-icon">🔐</div>
+                <h3 class="card-title">Gestión de Contraseñas</h3>
+                <p class="card-description">
+                    Cambiar contraseñas de asesores, generar contraseñas seguras y gestionar el acceso al sistema.
+                </p>
+                <button class="card-btn" onclick="irAGestionContrasenas()">
+                    Gestionar Contraseñas
+                </button>
+            </div>
+
+            <!-- Gestión de Configuraciones -->
+            <div class="card">
+                <div class="card-icon">⚙️</div>
+                <h3 class="card-title">Configuraciones</h3>
+                <p class="card-description">
+                    Editar configuraciones de bonos, metas, multiplicadores y parámetros del sistema para cada asesor.
+                </p>
+                <button class="card-btn" onclick="irAGestionConfiguraciones()">
+                    Gestionar Configuraciones
+                </button>
+            </div>
+
+            <!-- Respaldo y Mantenimiento -->
+            <div class="card">
+                <div class="card-icon">💾</div>
+                <h3 class="card-title">Respaldo y Mantenimiento</h3>
+                <p class="card-description">
+                    Exportar configuraciones, crear respaldos del sistema y realizar tareas de mantenimiento.
+                </p>
+                <button class="card-btn" onclick="irAMantenimiento()">
+                    Mantenimiento
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Verificar autenticación al cargar la página
+        window.addEventListener('load', function() {
+            verificarAutenticacion();
+            cargarEstadisticas();
+        });
+
+        function verificarAutenticacion() {
+            const adminAuth = sessionStorage.getItem('adminAuth');
+            const loginTime = sessionStorage.getItem('adminLoginTime');
+            
+            if (!adminAuth || adminAuth !== 'true') {
+                // No está autenticado, redirigir al login
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Verificar si la sesión ha expirado (2 horas)
+            const now = Date.now();
+            const loginTimestamp = parseInt(loginTime);
+            const twoHours = 2 * 60 * 60 * 1000;
+            
+            if (now - loginTimestamp > twoHours) {
+                // Sesión expirada
+                sessionStorage.removeItem('adminAuth');
+                sessionStorage.removeItem('adminLoginTime');
+                alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
+                window.location.href = 'login.html';
+            }
+        }
+
+        function cargarEstadisticas() {
+            // Cargar estadísticas dinámicas
+            fetch('../configuraciones/')
+                .then(() => {
+                    // Actualizar estadísticas basadas en archivos reales
+                    document.getElementById('ultimaActualizacion').textContent = new Date().toLocaleDateString();
+                })
+                .catch(() => {
+                    console.log('Estadísticas cargadas con valores por defecto');
+                });
+        }
+
+        function irAGestionAsesores() {
+            window.location.href = 'gestionar-asesores.html';
+        }
+
+        function irAGestionContrasenas() {
+            window.location.href = 'gestionar-contraseñas.html';
+        }
+
+        function irAGestionConfiguraciones() {
+            window.location.href = 'gestionar-configuraciones.html';
+        }
+
+        function irAMantenimiento() {
+            alert('🚧 Funcionalidad de mantenimiento en desarrollo');
+        }
+
+        function cerrarSesion() {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                sessionStorage.removeItem('adminAuth');
+                sessionStorage.removeItem('adminLoginTime');
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+</html> 

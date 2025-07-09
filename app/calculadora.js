@@ -1565,28 +1565,22 @@ const asesorActual = urlParams.get('asesor') || 'Base';
 // Cargar contraseñas centralizadas
 let SISTEMA_PASSWORD = "comercial2020"; // Default
 
-// Función para cargar contraseña del asesor desde archivo centralizado
+// Función para cargar contraseña del asesor desde Supabase
 async function cargarPasswordAsesor() {
     try {
-        const response = await fetch('contraseñas/passwords.js');
-        const data = await response.text();
+        console.log(`🔍 Cargando contraseña para ${asesorActual} desde Supabase...`);
         
-        // Crear un contexto temporal para evaluar el archivo
-        const tempContext = {};
-        const func = new Function('const', 'PASSWORDS', 'ADMIN_PASSWORD', 'getAsesorPassword', 'getAdminPassword', 'module', data);
-        func.call(tempContext);
+        // Obtener contraseña desde Supabase
+        const password = await obtenerPasswordAsesor(asesorActual);
         
-        // Extraer PASSWORDS del contexto
-        const match = data.match(/const PASSWORDS = ({[\s\S]*?});/);
-        if (match) {
-            const passwordsObj = eval('(' + match[1] + ')');
-            SISTEMA_PASSWORD = passwordsObj[asesorActual] || passwordsObj.Base;
-            console.log(`Contraseña cargada para ${asesorActual}: ${SISTEMA_PASSWORD}`);
+        if (password) {
+            SISTEMA_PASSWORD = password;
+            console.log(`✅ Contraseña cargada para ${asesorActual} desde Supabase`);
         } else {
-            throw new Error('No se pudo extraer PASSWORDS del archivo');
+            throw new Error('No se pudo obtener contraseña desde Supabase');
         }
     } catch (error) {
-        console.warn('Error cargando contraseñas centralizadas:', error);
+        console.warn('⚠️ Error cargando contraseña desde Supabase:', error);
         // Fallback a contraseñas por defecto
         const passwords = {
             Base: "20",
@@ -1600,32 +1594,82 @@ async function cargarPasswordAsesor() {
             Rodrigo: "comercial2028"
         };
         SISTEMA_PASSWORD = passwords[asesorActual] || passwords.Base;
-        console.log(`Contraseña fallback para ${asesorActual}: ${SISTEMA_PASSWORD}`);
+        console.log(`🔄 Contraseña fallback para ${asesorActual}: ${SISTEMA_PASSWORD}`);
     }
 }
 
-// Cargar configuración del asesor
-function cargarConfigAsesor() {
-    if (asesorActual === 'Base') return;
+// Cargar configuración del asesor desde Supabase
+async function cargarConfigAsesor() {
+    if (asesorActual === 'Base') {
+        console.log('📋 Usando configuración Base (por defecto)');
+        return;
+    }
     
-    const script = document.createElement('script');
-    script.src = `configuraciones/config.${asesorActual}.js`;
-    script.onload = function() {
-        console.log(`Configuración cargada para ${asesorActual}`);
-        // Recargar cálculos después de cargar configuración
-        setTimeout(() => {
-            updateCalculations();
-        }, 100);
-    };
-    script.onerror = function() {
-        console.warn(`No se pudo cargar config para ${asesorActual}, usando Base`);
-    };
-    document.head.appendChild(script);
+    try {
+        console.log(`🔍 Cargando configuración para ${asesorActual} desde Supabase...`);
+        
+        // Obtener configuración desde Supabase
+        const configData = await obtenerConfigAsesor(asesorActual);
+        
+        if (configData) {
+            // Aplicar la configuración obtenida
+            window.CONFIG = configData;
+            
+            // Actualizar variables globales
+            const config = getConfig();
+            window.niveles = config.niveles;
+            window.iconos = config.iconos;
+            window.metas = config.metas;
+            window.pagos = config.pagos;
+            window.multiplicadores = config.multiplicadores;
+            
+            console.log(`✅ Configuración cargada para ${asesorActual} desde Supabase`);
+            
+            // Recargar cálculos después de cargar configuración
+            setTimeout(() => {
+                updateCalculations();
+            }, 100);
+        } else {
+            throw new Error('No se pudo obtener configuración desde Supabase');
+        }
+    } catch (error) {
+        console.warn(`⚠️ Error cargando configuración desde Supabase para ${asesorActual}:`, error);
+        console.log('🔄 Usando configuración Base por defecto');
+    }
 }
 
-// Inicializar asesor
-cargarPasswordAsesor().then(() => {
-    cargarConfigAsesor();
+// Inicializar asesor con Supabase
+async function inicializarAsesor() {
+    try {
+        console.log('🚀 Inicializando asesor con Supabase...');
+        
+        // Esperar a que Supabase esté listo
+        await new Promise(resolve => {
+            if (typeof supabase !== 'undefined' && supabase) {
+                resolve();
+            } else {
+                const checkSupabase = setInterval(() => {
+                    if (typeof supabase !== 'undefined' && supabase) {
+                        clearInterval(checkSupabase);
+                        resolve();
+                    }
+                }, 100);
+            }
+        });
+        
+        // Cargar contraseña y configuración
+        await cargarPasswordAsesor();
+        await cargarConfigAsesor();
+        
+        console.log('✅ Asesor inicializado correctamente');
+    } catch (error) {
+        console.error('❌ Error inicializando asesor:', error);
+    }
+}
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    inicializarAsesor();
 });
 
 // Función para verificar contraseña
