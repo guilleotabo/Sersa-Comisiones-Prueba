@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎁 Sistema de Bonos Comerciales - SERSA SAECA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --main-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-gradient: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--main-gradient);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 10px;
+        }
+        .container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 48px 32px 32px 32px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+        .header {
+            margin-bottom: 32px;
+        }
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            animation: bounce 1.2s infinite alternate;
+        }
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+        .title {
+            font-size: 2.5rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #555;
+            font-size: 1.2rem;
+            margin-bottom: 24px;
+        }
+        .description {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .enter-btn {
+            background: var(--main-gradient);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .enter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+        }
+        .footer {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .footer .contacto {
+            margin-top: 8px;
+            color: #667eea;
+            font-weight: 500;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 24px 16px; }
+            .title { font-size: 2rem; }
+            .logo { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎁</div>
+            <h1 class="title">Sistema de Bonos Comerciales</h1>
+            <p class="subtitle">SERSA SAECA</p>
+        </div>
+        
+        <div class="description">
+            <strong>Bienvenido al Sistema Unificado de Bonos Comerciales</strong><br><br>
+            Gestiona y calcula los bonos de todos los asesores comerciales desde una plataforma centralizada. 
+            Cada asesor tiene su configuración personalizada y acceso seguro con contraseña.
+        </div>
+        
+        <button class="enter-btn" onclick="entrarSistema()">
+            🚀 Entrar al Sistema
+        </button>
+        
+        <div class="footer">
+            <div class="contacto">¿Dudas o sugerencias? Contáctanos: <a href="mailto:ti1@sersa.com.py">ti1@sersa.com.py</a></div>
+            <p style="margin-top:16px;">&copy; 2024 SERSA SAECA - Sistema de Bonos Comerciales</p>
+        </div>
+    </div>
+
+    <script>
+        function entrarSistema() {
+            // Redirigir a la carpeta app donde está el sistema de asesores
+            window.location.href = 'app/';
+        }
+    </script>
+</body>
+</html>
