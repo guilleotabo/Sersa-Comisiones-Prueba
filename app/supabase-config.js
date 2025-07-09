@@ -44,7 +44,7 @@ async function obtenerConfigAsesor(nombreAsesor) {
     try {
         const { data, error } = await supabase
             .from('configuraciones')
-            .select('configuracion')
+            .select('config')
             .eq('asesor', nombreAsesor)
             .single();
 
@@ -54,7 +54,7 @@ async function obtenerConfigAsesor(nombreAsesor) {
         }
 
         console.log(`✅ Configuración obtenida para ${nombreAsesor}`);
-        return data.configuracion;
+        return data.config;
     } catch (error) {
         console.error('❌ Error en obtenerConfigAsesor:', error);
         return null;
@@ -108,7 +108,7 @@ async function actualizarConfigAsesor(nombreAsesor, nuevaConfig) {
     try {
         const { data, error } = await supabase
             .from('configuraciones')
-            .update({ configuracion: nuevaConfig })
+            .update({ config: nuevaConfig })
             .eq('asesor', nombreAsesor);
 
         if (error) {
@@ -150,7 +150,7 @@ async function agregarNuevoAsesor(nombre, email, password, configuracion) {
         // Agregar configuración
         const { data: configData, error: configError } = await supabase
             .from('configuraciones')
-            .insert([{ asesor: nombre, configuracion }]);
+            .insert([{ asesor: nombre, config: configuracion }]);
 
         if (configError) {
             console.error('❌ Error agregando configuración:', configError);
