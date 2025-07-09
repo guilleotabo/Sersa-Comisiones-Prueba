@@ -3,40 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🛠️ Panel de Administración</title>
+    <title>🛠️ Panel de Administración - SERSA</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --admin-gradient: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             --admin-light: #f8f9fa;
             --admin-dark: #2c3e50;
-            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow: 0 8px 32px 0 rgba(231, 76, 60, 0.15);
+            --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
             --success: #27ae60;
             --warning: #f39c12;
             --info: #3498db;
+            --danger: #e74c3c;
         }
         * { box-sizing: border-box; }
         body {
             font-family: 'Montserrat', sans-serif;
-            background: #ecf0f1;
+            background: var(--admin-light);
             margin: 0;
-            padding: 0;
             min-height: 100vh;
         }
         .header {
             background: var(--admin-gradient);
             color: white;
-            padding: 20px;
-            box-shadow: var(--card-shadow);
+            padding: 20px 0;
+            box-shadow: var(--shadow);
         }
         .header-content {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
         }
         .header-title {
             font-size: 1.8rem;
@@ -45,7 +45,7 @@
         }
         .header-actions {
             display: flex;
-            gap: 12px;
+            gap: 15px;
             align-items: center;
         }
         .btn {
@@ -54,76 +54,28 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
             text-decoration: none;
-            display: inline-block;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         .btn-secondary {
             background: rgba(255, 255, 255, 0.2);
             color: white;
         }
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
         .btn-danger {
             background: #c0392b;
             color: white;
         }
-        .btn-danger:hover {
-            background: #a93226;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 30px 20px;
-        }
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            margin-bottom: 30px;
-        }
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-        }
-        .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 16px;
-            display: block;
-        }
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--admin-dark);
-        }
-        .card-description {
-            color: #7f8c8d;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        .card-btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--admin-gradient);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .card-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
         }
         .stats-grid {
             display: grid;
@@ -150,14 +102,115 @@
         .stat-success { color: var(--success); }
         .stat-warning { color: var(--warning); }
         .stat-info { color: var(--info); }
-        .stat-danger { color: #e74c3c; }
+        .stat-danger { color: var(--danger); }
+        
+        .section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--admin-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--admin-dark);
+        }
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            margin: 0 2px;
+        }
+        .btn-primary {
+            background: var(--info);
+            color: white;
+        }
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--admin-dark);
+        }
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--info);
+        }
         
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
                 text-align: center;
             }
-            .dashboard-grid {
+            .stats-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -169,7 +222,7 @@
             <h1 class="header-title">🛠️ Panel de Administración</h1>
             <div class="header-actions">
                 <span id="adminWelcome">Bienvenido, Administrador</span>
-                <a href="../app/" class="btn btn-secondary">🎁 Ver Sistema</a>
+                <a href="../app/calculadora.html" class="btn btn-secondary">🧮 Ver Calculadora</a>
                 <button class="btn btn-danger" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
             </div>
         </div>
@@ -179,80 +232,81 @@
         <!-- Estadísticas -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-number stat-info" id="totalAsesores">9</div>
+                <div class="stat-number stat-info" id="totalAsesores">-</div>
                 <div class="stat-label">Total Asesores</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number stat-success" id="asesorActivos">9</div>
+                <div class="stat-number stat-success" id="asesorActivos">-</div>
                 <div class="stat-label">Asesores Activos</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number stat-warning" id="configuracionesTotal">9</div>
+                <div class="stat-number stat-warning" id="configuracionesTotal">-</div>
                 <div class="stat-label">Configuraciones</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number stat-danger" id="ultimaActualizacion">Hoy</div>
+                <div class="stat-number stat-danger" id="ultimaActualizacion">-</div>
                 <div class="stat-label">Última Actualización</div>
             </div>
         </div>
 
-        <!-- Dashboard Principal -->
-        <div class="dashboard-grid">
-            <!-- Gestión de Asesores -->
-            <div class="card">
-                <div class="card-icon">👥</div>
-                <h3 class="card-title">Gestión de Asesores</h3>
-                <p class="card-description">
-                    Crear, editar y eliminar asesores del sistema. Gestiona la información básica y el estado de cada asesor.
-                </p>
-                <button class="card-btn" onclick="irAGestionAsesores()">
-                    Gestionar Asesores
-                </button>
-            </div>
-
-            <!-- Gestión de Contraseñas -->
-            <div class="card">
-                <div class="card-icon">🔐</div>
-                <h3 class="card-title">Gestión de Contraseñas</h3>
-                <p class="card-description">
-                    Cambiar contraseñas de asesores, generar contraseñas seguras y gestionar el acceso al sistema.
-                </p>
-                <button class="card-btn" onclick="irAGestionContrasenas()">
-                    Gestionar Contraseñas
-                </button>
-            </div>
-
-            <!-- Gestión de Configuraciones -->
-            <div class="card">
-                <div class="card-icon">⚙️</div>
-                <h3 class="card-title">Configuraciones</h3>
-                <p class="card-description">
-                    Editar configuraciones de bonos, metas, multiplicadores y parámetros del sistema para cada asesor.
-                </p>
-                <button class="card-btn" onclick="irAGestionConfiguraciones()">
-                    Gestionar Configuraciones
-                </button>
-            </div>
-
-            <!-- Respaldo y Mantenimiento -->
-            <div class="card">
-                <div class="card-icon">💾</div>
-                <h3 class="card-title">Respaldo y Mantenimiento</h3>
-                <p class="card-description">
-                    Exportar configuraciones, crear respaldos del sistema y realizar tareas de mantenimiento.
-                </p>
-                <button class="card-btn" onclick="irAMantenimiento()">
-                    Mantenimiento
-                </button>
+        <!-- Gestión de Asesores -->
+        <div class="section">
+            <h2 class="section-title">👥 Gestión de Asesores</h2>
+            <div id="asesoresLoading" class="loading">🔄 Cargando asesores...</div>
+            <div id="asesoresError" class="error" style="display: none;"></div>
+            <div id="asesoresSuccess" class="success" style="display: none;"></div>
+            <div id="asesoresContainer" style="display: none;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Estado</th>
+                            <th>Contraseña</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="asesoresTableBody">
+                        <!-- Se carga dinámicamente -->
+                    </tbody>
+                </table>
             </div>
         </div>
+
+        <!-- Agregar Nuevo Asesor -->
+        <div class="section">
+            <h2 class="section-title">➕ Agregar Nuevo Asesor</h2>
+            <form id="nuevoAsesorForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Nombre:</label>
+                        <input type="text" id="nuevoNombre" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email:</label>
+                        <input type="email" id="nuevoEmail" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contraseña:</label>
+                    <input type="password" id="nuevaPassword" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary">✅ Agregar Asesor</button>
+            </form>
+        </div>
     </div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Configuración de Supabase -->
+    <script src="../app/supabase-config.js"></script>
 
     <script>
         // Verificar autenticación al cargar la página
         window.addEventListener('load', function() {
             verificarAutenticacion();
-            cargarEstadisticas();
+            setTimeout(inicializarDashboard, 500);
         });
 
         function verificarAutenticacion() {
@@ -260,7 +314,6 @@
             const loginTime = sessionStorage.getItem('adminLoginTime');
             
             if (!adminAuth || adminAuth !== 'true') {
-                // No está autenticado, redirigir al login
                 window.location.href = 'login.html';
                 return;
             }
@@ -271,7 +324,6 @@
             const twoHours = 2 * 60 * 60 * 1000;
             
             if (now - loginTimestamp > twoHours) {
-                // Sesión expirada
                 sessionStorage.removeItem('adminAuth');
                 sessionStorage.removeItem('adminLoginTime');
                 alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
@@ -279,32 +331,198 @@
             }
         }
 
-        function cargarEstadisticas() {
-            // Cargar estadísticas dinámicas
-            fetch('../configuraciones/')
-                .then(() => {
-                    // Actualizar estadísticas basadas en archivos reales
-                    document.getElementById('ultimaActualizacion').textContent = new Date().toLocaleDateString();
-                })
-                .catch(() => {
-                    console.log('Estadísticas cargadas con valores por defecto');
+        async function inicializarDashboard() {
+            try {
+                // Esperar a que Supabase esté listo
+                await new Promise(resolve => {
+                    if (typeof supabase !== 'undefined' && supabase) {
+                        resolve();
+                    } else {
+                        const checkSupabase = setInterval(() => {
+                            if (typeof supabase !== 'undefined' && supabase) {
+                                clearInterval(checkSupabase);
+                                resolve();
+                            }
+                        }, 100);
+                    }
                 });
+
+                await cargarAsesores();
+                await cargarEstadisticas();
+            } catch (error) {
+                console.error('Error inicializando dashboard:', error);
+                mostrarError('Error conectando con la base de datos');
+            }
         }
 
-        function irAGestionAsesores() {
-            window.location.href = 'gestionar-asesores.html';
+        async function cargarAsesores() {
+            try {
+                const asesores = await obtenerTodosAsesores();
+                
+                if (asesores && asesores.length > 0) {
+                    mostrarAsesores(asesores);
+                } else {
+                    mostrarError('No se encontraron asesores');
+                }
+            } catch (error) {
+                console.error('Error cargando asesores:', error);
+                mostrarError('Error cargando asesores: ' + error.message);
+            }
         }
 
-        function irAGestionContrasenas() {
-            window.location.href = 'gestionar-contraseñas.html';
+        async function mostrarAsesores(asesores) {
+            const tbody = document.getElementById('asesoresTableBody');
+            tbody.innerHTML = '';
+
+            for (const asesor of asesores) {
+                // Obtener contraseña del asesor
+                const password = await obtenerPasswordAsesor(asesor.nombre);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${asesor.nombre}</td>
+                    <td>${asesor.email || 'No especificado'}</td>
+                    <td>
+                        <span class="status-badge ${asesor.activo ? 'status-active' : 'status-inactive'}">
+                            ${asesor.activo ? '✅ Activo' : '❌ Inactivo'}
+                        </span>
+                    </td>
+                    <td>
+                        <input type="password" value="${password || ''}" 
+                               id="pwd-${asesor.nombre}" 
+                               style="width: 120px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
+                    </td>
+                    <td>
+                        <button class="btn btn-small btn-primary" onclick="actualizarPassword('${asesor.nombre}')">
+                            💾 Guardar
+                        </button>
+                        <button class="btn btn-small btn-warning" onclick="toggleAsesor('${asesor.nombre}', ${asesor.activo})">
+                            ${asesor.activo ? '⏸️ Desactivar' : '▶️ Activar'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+
+            document.getElementById('asesoresLoading').style.display = 'none';
+            document.getElementById('asesoresContainer').style.display = 'block';
         }
 
-        function irAGestionConfiguraciones() {
-            window.location.href = 'gestionar-configuraciones.html';
+        async function cargarEstadisticas() {
+            try {
+                const asesores = await obtenerTodosAsesores();
+                const total = asesores.length;
+                const activos = asesores.filter(a => a.activo).length;
+                
+                document.getElementById('totalAsesores').textContent = total;
+                document.getElementById('asesorActivos').textContent = activos;
+                document.getElementById('configuracionesTotal').textContent = total;
+                document.getElementById('ultimaActualizacion').textContent = new Date().toLocaleDateString();
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
         }
 
-        function irAMantenimiento() {
-            alert('🚧 Funcionalidad de mantenimiento en desarrollo');
+        async function actualizarPassword(nombreAsesor) {
+            try {
+                const newPassword = document.getElementById(`pwd-${nombreAsesor}`).value;
+                
+                if (!newPassword.trim()) {
+                    alert('❌ La contraseña no puede estar vacía');
+                    return;
+                }
+
+                const success = await actualizarPasswordAsesor(nombreAsesor, newPassword);
+                
+                if (success) {
+                    mostrarExito(`✅ Contraseña actualizada para ${nombreAsesor}`);
+                } else {
+                    mostrarError(`❌ Error actualizando contraseña para ${nombreAsesor}`);
+                }
+            } catch (error) {
+                console.error('Error actualizando contraseña:', error);
+                mostrarError('Error actualizando contraseña: ' + error.message);
+            }
+        }
+
+        async function toggleAsesor(nombreAsesor, estadoActual) {
+            try {
+                const nuevoEstado = !estadoActual;
+                
+                // Actualizar estado del asesor
+                const { error } = await supabase
+                    .from('asesores')
+                    .update({ activo: nuevoEstado })
+                    .eq('nombre', nombreAsesor);
+
+                if (error) {
+                    throw error;
+                }
+
+                mostrarExito(`✅ Asesor ${nombreAsesor} ${nuevoEstado ? 'activado' : 'desactivado'}`);
+                await cargarAsesores();
+                await cargarEstadisticas();
+            } catch (error) {
+                console.error('Error cambiando estado del asesor:', error);
+                mostrarError('Error cambiando estado: ' + error.message);
+            }
+        }
+
+        // Formulario para agregar nuevo asesor
+        document.getElementById('nuevoAsesorForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const nombre = document.getElementById('nuevoNombre').value.trim();
+            const email = document.getElementById('nuevoEmail').value.trim();
+            const password = document.getElementById('nuevaPassword').value.trim();
+            
+            if (!nombre || !email || !password) {
+                alert('❌ Todos los campos son obligatorios');
+                return;
+            }
+
+            try {
+                // Usar configuración base para nuevos asesores
+                const configBase = {
+                    base: 350000,
+                    niveles: ["Bronce", "Plata", "Oro", "Platino", "Diamante", "Master"],
+                    // ... resto de configuración base
+                };
+
+                const success = await agregarNuevoAsesor(nombre, email, password, configBase);
+                
+                if (success) {
+                    mostrarExito(`✅ Asesor ${nombre} agregado exitosamente`);
+                    document.getElementById('nuevoAsesorForm').reset();
+                    await cargarAsesores();
+                    await cargarEstadisticas();
+                } else {
+                    mostrarError('❌ Error agregando asesor');
+                }
+            } catch (error) {
+                console.error('Error agregando asesor:', error);
+                mostrarError('Error agregando asesor: ' + error.message);
+            }
+        });
+
+        function mostrarError(mensaje) {
+            const errorDiv = document.getElementById('asesoresError');
+            errorDiv.textContent = mensaje;
+            errorDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function mostrarExito(mensaje) {
+            const successDiv = document.getElementById('asesoresSuccess');
+            successDiv.textContent = mensaje;
+            successDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
         }
 
         function cerrarSesion() {

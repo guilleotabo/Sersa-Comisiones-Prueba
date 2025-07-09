@@ -1973,6 +1973,13 @@ function validateAndSaveConfig() {
     showAdminMessage('Validando configuración...', 'info');
     
     try {
+        // Verificar si los elementos existen antes de intentar acceder
+        const adminBaseElement = document.getElementById('admin-base');
+        if (!adminBaseElement) {
+            showAdminMessage('❌ Panel de administración no cargado completamente', 'error');
+            return;
+        }
+        
         const config = getCurrentConfig();
         
         // Validar multiplicadores
@@ -1982,13 +1989,27 @@ function validateAndSaveConfig() {
             return;
         }
         
-        // Guardar configuración
+        // Guardar configuración localmente
         localStorage.setItem('bonosConfig', JSON.stringify(config));
+        
+        // Si tenemos Supabase disponible, también guardar en la base de datos
+        if (typeof supabase !== 'undefined' && supabase && asesorActual) {
+            actualizarConfigAsesor(asesorActual, config).then(success => {
+                if (success) {
+                    showAdminMessage('✅ Configuración guardada en Supabase y localmente', 'success');
+                } else {
+                    showAdminMessage('✅ Configuración guardada localmente (error en Supabase)', 'warning');
+                }
+            }).catch(error => {
+                console.warn('Error guardando en Supabase:', error);
+                showAdminMessage('✅ Configuración guardada localmente (Supabase no disponible)', 'warning');
+            });
+        } else {
+            showAdminMessage('✅ Configuración guardada localmente', 'success');
+        }
         
         // Actualizar cálculos
         updateCalculations();
-        
-        showAdminMessage('✅ Configuración guardada exitosamente', 'success');
         
         // Auto-cerrar mensaje después de 3 segundos
         setTimeout(() => hideAdminMessage(), 3000);
@@ -1999,6 +2020,7 @@ function validateAndSaveConfig() {
         }, 1000);
         
     } catch (error) {
+        console.error('Error en validateAndSaveConfig:', error);
         showAdminMessage('❌ Error al guardar: ' + error.message, 'error');
     }
 }
@@ -2006,8 +2028,15 @@ function validateAndSaveConfig() {
 // Obtener configuración actual desde los inputs del admin
 function getCurrentConfig() {
     const currentConfig = getConfig(); // Obtener configuración actual
+    
+    // Función auxiliar para obtener valor de elemento de forma segura
+    function getElementValue(id, fallback = '') {
+        const element = document.getElementById(id);
+        return element ? element.value : fallback;
+    }
+    
     const config = {
-        base: parseInt(limpiarFormatoAdmin(document.getElementById('admin-base').value)) || currentConfig.base,
+        base: parseInt(limpiarFormatoAdmin(getElementValue('admin-base'))) || currentConfig.base,
         niveles: [],
         iconos: currentConfig.iconos, // Mantener iconos originales
         metas: {
@@ -2034,21 +2063,21 @@ function getCurrentConfig() {
     
     // Obtener niveles
     for (let i = 0; i < 6; i++) {
-        config.niveles[i] = document.getElementById(`admin-nivel-${i}`).value || currentConfig.niveles[i];
+        config.niveles[i] = getElementValue(`admin-nivel-${i}`) || currentConfig.niveles[i];
         
         // Metas
-        config.metas.montoInterno[i] = parseInt(limpiarFormatoAdmin(document.getElementById(`admin-meta-interno-${i}`).value)) || 0;
-        config.metas.montoExterno[i] = parseInt(limpiarFormatoAdmin(document.getElementById(`admin-meta-externo-${i}`).value)) || 0;
-        config.metas.montoRecuperado[i] = parseInt(limpiarFormatoAdmin(document.getElementById(`admin-meta-recuperado-${i}`).value)) || 0;
-        config.metas.cantidad[i] = parseInt(document.getElementById(`admin-meta-cantidad-${i}`).value) || 0;
+        config.metas.montoInterno[i] = parseInt(limpiarFormatoAdmin(getElementValue(`admin-meta-interno-${i}`))) || 0;
+        config.metas.montoExterno[i] = parseInt(limpiarFormatoAdmin(getElementValue(`admin-meta-externo-${i}`))) || 0;
+        config.metas.montoRecuperado[i] = parseInt(limpiarFormatoAdmin(getElementValue(`admin-meta-recuperado-${i}`))) || 0;
+        config.metas.cantidad[i] = parseInt(getElementValue(`admin-meta-cantidad-${i}`)) || 0;
         
         // Pagos
-        config.pagos.carrera[i] = parseInt(limpiarFormatoAdmin(document.getElementById(`admin-premio-carrera-${i}`).value)) || 0;
-        config.pagos.montoInterno[i] = parseInt(limpiarFormatoAdmin(document.getElementById(`admin-premio-interno-${i}`).value)) || 0;
-        config.pagos.montoExterno[i] = parseInt(limpiarFormatoAdmin(document.getElementById(`admin-premio-externo-${i}`).value)) || 0;
-        config.pagos.montoRecuperado[i] = parseInt(limpiarFormatoAdmin(document.getElementById(`admin-premio-recuperado-${i}`).value)) || 0;
-        config.pagos.cantidad[i] = parseInt(limpiarFormatoAdmin(document.getElementById(`admin-premio-cantidad-${i}`).value)) || 0;
-        config.pagos.equipo[i] = parseInt(limpiarFormatoAdmin(document.getElementById(`admin-premio-equipo-${i}`).value)) || 0;
+        config.pagos.carrera[i] = parseInt(limpiarFormatoAdmin(getElementValue(`admin-premio-carrera-${i}`))) || 0;
+        config.pagos.montoInterno[i] = parseInt(limpiarFormatoAdmin(getElementValue(`admin-premio-interno-${i}`))) || 0;
+        config.pagos.montoExterno[i] = parseInt(limpiarFormatoAdmin(getElementValue(`admin-premio-externo-${i}`))) || 0;
+        config.pagos.montoRecuperado[i] = parseInt(limpiarFormatoAdmin(getElementValue(`admin-premio-recuperado-${i}`))) || 0;
+        config.pagos.cantidad[i] = parseInt(limpiarFormatoAdmin(getElementValue(`admin-premio-cantidad-${i}`))) || 0;
+        config.pagos.equipo[i] = parseInt(limpiarFormatoAdmin(getElementValue(`admin-premio-equipo-${i}`))) || 0;
     }
     
     // Leer multiplicadores del nuevo formato V2
@@ -2058,26 +2087,32 @@ function getCurrentConfig() {
         if (container) {
             const rules = container.querySelectorAll('.multiplier-rule-v2');
             rules.forEach(rule => {
-                const op = rule.querySelector('[data-field="op"]').value;
-                const valor = parseFloat(rule.querySelector('[data-field="valor"]').value);
-                const mult = parseFloat(rule.querySelector('[data-field="mult"]').value);
+                const opElement = rule.querySelector('[data-field="op"]');
+                const valorElement = rule.querySelector('[data-field="valor"]');
+                const multElement = rule.querySelector('[data-field="mult"]');
+                
+                if (opElement && valorElement && multElement) {
+                    const op = opElement.value;
+                    const valor = parseFloat(valorElement.value);
+                    const mult = parseFloat(multElement.value);
 
-                if (!isNaN(valor) && !isNaN(mult)) {
-                    // Convertir al formato original del sistema
-                    let text = '';
-                    if (op === '>=') {
-                        text = valor === 0 ? 'Todos' : `${valor}%+`;
-                    } else if (op === '<=') {
-                        text = `≤${valor}%`;
-                    } else if (op === '==') {
-                        text = `=${valor}%`;
+                    if (!isNaN(valor) && !isNaN(mult)) {
+                        // Convertir al formato original del sistema
+                        let text = '';
+                        if (op === '>=') {
+                            text = valor === 0 ? 'Todos' : `${valor}%+`;
+                        } else if (op === '<=') {
+                            text = `≤${valor}%`;
+                        } else if (op === '==') {
+                            text = `=${valor}%`;
+                        }
+                        
+                        config.multiplicadores[type].push({
+                            min: valor,
+                            mult: mult,
+                            text: text
+                        });
                     }
-                    
-                    config.multiplicadores[type].push({
-                        min: valor,
-                        mult: mult,
-                        text: text
-                    });
                 }
             });
             
