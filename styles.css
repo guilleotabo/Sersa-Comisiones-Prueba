@@ -2007,3 +2007,42 @@
                 grid-template-columns: 1fr;
             }
         }
+
+/* Estilos adicionales para el selector de asesores */
+.login-select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+}
+
+.login-select:focus {
+    outline: none;
+    border-color: #006D77;
+    box-shadow: 0 0 0 3px rgba(0,109,119,0.1);
+}
+
+.asesor-info {
+    background: #e0e7ff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.input-group-login {
+    margin-bottom: 10px;
+}
+
+.input-group-login label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
