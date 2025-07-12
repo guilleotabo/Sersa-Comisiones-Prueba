@@ -13,7 +13,7 @@ let isCalculating = false;
 
 // Configuración por defecto del sistema (como respaldo)
 const CONFIG_DEFAULT = {
-    base: 9000000,
+    base: 3000000,
     niveles: ["Capilla", "Junior", "Senior A", "Senior B", "Máster", "Genio"],
     iconos: ["⛪", "🌱", "💼", "🌟", "👑", "🏆"],
     metas: {
@@ -32,27 +32,34 @@ const CONFIG_DEFAULT = {
     },
     multiplicadores: {
         conversion: [
-            {min: 7, mult: 1.0, text: "7%+"},
-            {min: 5, mult: 0.8, text: "5-6%"},
-            {min: 3, mult: 0.6, text: "3-4%"},
-            {min: 0, mult: 0.0, text: "Menos de 3%"}
+            {min: 15, mult: 1.1, text: "15%+"},
+            {min: 11, mult: 1, text: "11%"},
+            {min: 9, mult: 0.8, text: "9%"},
+            {min: 7, mult: 0.7, text: "7%"},
+            {min: 6, mult: 0.6, text: "6%"},
+            {min: 5, mult: 0.5, text: "5%"},
+            {min: 0, mult: 0.5, text: "<5%"}
         ],
         empatia: [
-            {min: 90, mult: 1.0, text: "90%+"},
-            {min: 80, mult: 0.9, text: "80-89%"},
-            {min: 70, mult: 0.8, text: "70-79%"},
-            {min: 0, mult: 0.0, text: "Menos de 70%"}
+            {min: 96, mult: 1, text: "96%+"},
+            {min: 90, mult: 0.9, text: "90%"},
+            {min: 80, mult: 0.7, text: "80%"},
+            {min: 70, mult: 0.5, text: "70%"},
+            {min: 0, mult: 0.3, text: "<70%"}
         ],
         proceso: [
-            {min: 90, mult: 1.0, text: "90%+"},
-            {min: 80, mult: 0.9, text: "80-89%"},
-            {min: 70, mult: 0.8, text: "70-79%"},
-            {min: 0, mult: 0.0, text: "Menos de 70%"}
+            {min: 95, mult: 1, text: "95%+"},
+            {min: 90, mult: 0.95, text: "90%"},
+            {min: 85, mult: 0.8, text: "85%"},
+            {min: 70, mult: 0.5, text: "70%"},
+            {min: 0, mult: 0.3, text: "<70%"}
         ],
         mora: [
-            {min: 0, mult: 1.0, text: "0-2%"},
-            {min: 3, mult: 0.8, text: "3-7%"},
-            {min: 8, mult: 0.0, text: "8%+"}
+            {min: 0, mult: 1.05, text: "0-2%"},
+            {min: 3, mult: 1, text: "3-7%"},
+            {min: 8, mult: 0.9, text: "8-9%"},
+            {min: 10, mult: 0.8, text: "10-14%"},
+            {min: 15, mult: 0.7, text: "15%+"}
         ]
     },
     nombres_bonos: {
@@ -95,42 +102,45 @@ window.addEventListener('DOMContentLoaded', async function() {
     });
 });
 
-// FUNCIÓN 1: Cargar lista de asesores
+// FUNCIÓN 1: Cargar lista de usuarios (asesores + admins)
 async function cargarAsesores() {
     try {
         const { data, error } = await supabase
             .from('users')
-            .select('nombre')
+            .select('nombre, rol')
             .eq('activo', true)
-            .eq('rol', 'asesor')
+            .in('rol', ['asesor', 'admin'])
+            .order('rol', { ascending: false }) // Admin primero
             .order('nombre');
 
         if (error) throw error;
 
         const select = document.getElementById('asesor-select');
-        select.innerHTML = '<option value="">-- Selecciona un asesor --</option>';
+        select.innerHTML = '<option value="">-- Selecciona usuario --</option>';
         
-        data.forEach(asesor => {
+        data.forEach(usuario => {
             const option = document.createElement('option');
-            option.value = asesor.nombre;
-            option.textContent = asesor.nombre;
+            option.value = usuario.nombre;
+            option.textContent = usuario.rol === 'admin' ? 
+                `🛠️ ${usuario.nombre} (Admin)` : 
+                `👤 ${usuario.nombre}`;
             select.appendChild(option);
         });
     } catch (error) {
-        console.error('Error cargando asesores:', error);
-        mostrarError('Error cargando asesores. Intenta recargar la página.');
+        console.error('Error cargando usuarios:', error);
+        mostrarError('Error cargando usuarios. Intenta recargar la página.');
     }
 }
 
-// FUNCIÓN 2: Verificar contraseña
+// FUNCIÓN 2: Verificar contraseña (unificado para asesores y admins)
 async function verificarContrasena() {
-    const asesor = document.getElementById('asesor-select').value;
+    const usuario = document.getElementById('asesor-select').value;
     const password = document.getElementById('password-input').value;
     const loginBtn = document.querySelector('.login-btn');
     const originalText = loginBtn.innerHTML;
     
-    if (!asesor) {
-        mostrarError('Por favor selecciona un asesor');
+    if (!usuario) {
+        mostrarError('Por favor selecciona un usuario');
         return;
     }
     
@@ -147,24 +157,34 @@ async function verificarContrasena() {
         // Verificar usuario y contraseña directamente en tabla users
         const { data, error } = await supabase
             .from('users')
-            .select('id, password_hash')
-            .eq('nombre', asesor)
+            .select('id, password_hash, rol')
+            .eq('nombre', usuario)
             .eq('activo', true)
-            .eq('rol', 'asesor')
+            .in('rol', ['asesor', 'admin'])
             .single();
         
         if (error) throw error;
         
         if (data.password_hash === password) {
-            mostrarExito(`¡Bienvenido ${asesor}!`);
-            asesorActual = asesor;
+            mostrarExito(`¡Bienvenido ${usuario}!`);
+            asesorActual = usuario;
             asesorActualId = data.id;
-            await cargarConfiguracion(data.id);
             
-            // Pequeña pausa para mostrar el mensaje de éxito
-            setTimeout(() => {
-                mostrarSistema();
-            }, 1000);
+            // Redirigir según el rol
+            if (data.rol === 'admin') {
+                // Pequeña pausa para mostrar el mensaje de éxito
+                setTimeout(() => {
+                    window.location.href = 'admin.html#admin-authenticated';
+                }, 1000);
+            } else {
+                // Cargar configuración para asesores
+                await cargarConfiguracion(data.id);
+                
+                // Pequeña pausa para mostrar el mensaje de éxito
+                setTimeout(() => {
+                    mostrarSistema();
+                }, 1000);
+            }
         } else {
             mostrarError('Contraseña incorrecta');
         }
@@ -357,7 +377,7 @@ function aplicarConfiguracion() {
     // Llenar los selects de niveles
     llenarSelectsNiveles();
     
-    // Actualizar cálculos
+    // Actualizar cálculos (esto ya llama a updateMultiplicadorTables)
     updateCalculations();
 }
 
@@ -486,22 +506,35 @@ function getNumericValue(id) {
 // Calcular multiplicador
 function calcularMultiplicador(tipo, valor) {
     const config = configuracionActual || CONFIG_DEFAULT;
-    const tabla = config.multiplicadores[tipo];
-    if (!tabla) return 0;
-
-    if (tipo === 'mora') {
-        // Para mora, recorrer de mayor a menor
-        for (let i = tabla.length - 1; i >= 0; i--) {
-            if (valor >= tabla[i].min) return tabla[i].mult;
+    const multiplicadorConfig = config.multiplicadores[tipo];
+    
+    if (!multiplicadorConfig) return 1;
+    
+    // Manejar nueva estructura (array de objetos)
+    if (Array.isArray(multiplicadorConfig)) {
+        // Buscar el multiplicador correspondiente
+        // Los rangos están ordenados de mayor a menor valor mínimo
+        for (let i = 0; i < multiplicadorConfig.length; i++) {
+            const rango = multiplicadorConfig[i];
+            if (valor >= rango.min) {
+                return rango.mult;
+            }
         }
-        return 0;
+        return multiplicadorConfig[multiplicadorConfig.length - 1]?.mult || 1;
+    } else {
+        // Estructura antigua: objeto con rangos
+        const rangos = multiplicadorConfig.rangos;
+        
+        // Buscar el rango apropiado
+        for (let rango of rangos) {
+            if (valor >= rango.desde && valor <= rango.hasta) {
+                return rango.multiplicador;
+            }
+        }
+        
+        // Si no se encuentra en ningún rango, usar el multiplicador del primer rango
+        return rangos[0]?.multiplicador || 1;
     }
-
-    // Para las demás tablas
-    for (let item of tabla) {
-        if (valor >= item.min) return item.mult;
-    }
-    return 0;
 }
 
 // FUNCIONES DE ACTUALIZACIÓN DE BARRAS ======================================
@@ -685,7 +718,9 @@ function updateCarreraBar(nivelCarrera, nivelActualMes, nivelAnterior) {
     return bonoCarrera;
 }
 
-// Actualizar tablas de multiplicadores
+
+
+// Actualizar tabla de multiplicadores clickeable (FORMATO ORIGINAL RESTAURADO)
 function updateMultiplicadorTables() {
     const config = configuracionActual || CONFIG_DEFAULT;
     const conversion = parseFloat(document.getElementById('conversion').value) || 0;
@@ -694,61 +729,153 @@ function updateMultiplicadorTables() {
     const mora = parseFloat(document.getElementById('mora').value) || 0;
     
     const container = document.getElementById('multiplicadorTables');
+    if (!container) return;
+    
     let html = '';
     
-    // Crear tabla para cada multiplicador
-    const tipos = ['conversion', 'empatia', 'proceso', 'mora'];
-    const valores = { conversion, empatia, proceso, mora };
-    const titulos = { conversion: 'Conversión', empatia: 'Empatía', proceso: 'Proceso', mora: 'Mora' };
+    // Tabla Conversión
+    const multConv = calcularMultiplicador('conversion', conversion);
+    let classConv = 'multiplier-table';
+    if (multConv >= 0.9) classConv += ' good';
+    else if (multConv >= 0.7) classConv += ' warning';
+    else if (multConv > 0) classConv += ' danger';
     
-    tipos.forEach(tipo => {
-        const mult = calcularMultiplicador(tipo, valores[tipo]);
-        let className = 'multiplier-table';
-        
-        if (tipo === 'mora') {
-            if (valores[tipo] <= 2) className += ' good';
-            else if (valores[tipo] <= 7) className += ' warning';
-            else className += ' danger';
-        } else {
-            if (mult >= 0.9) className += ' good';
-            else if (mult >= 0.7) className += ' warning';
-            else if (mult > 0) className += ' danger';
-        }
-        
-        html += `<div class="${className}">
-            <div class="multiplier-title">${titulos[tipo]}</div>`;
-        
-        config.multiplicadores[tipo].forEach((item, i) => {
-            const nextItem = config.multiplicadores[tipo][i + (tipo === 'mora' ? 1 : -1)];
-            let active = false;
-            
-            if (tipo === 'mora') {
-                active = valores[tipo] >= item.min && (!nextItem || valores[tipo] < nextItem.min);
-            } else {
-                active = valores[tipo] >= item.min && (!nextItem || valores[tipo] < nextItem.min);
-            }
-            
+    html += `<div class="${classConv}">
+        <div class="multiplier-title">Conversión</div>`;
+    
+    const multiplicadorConversion = config.multiplicadores.conversion;
+    if (Array.isArray(multiplicadorConversion)) {
+        // Nueva estructura: array de objetos con min, mult, text
+        for (let i = 0; i < multiplicadorConversion.length; i++) {
+            const item = multiplicadorConversion[i];
+            const nextItem = multiplicadorConversion[i - 1];
+            const active = conversion >= item.min && (!nextItem || conversion < nextItem.min);
             html += `<div class="multiplier-row ${active ? 'active' : ''}" 
-                     onclick="cargarMultiplicador('${tipo}', ${item.min})"
+                     onclick="cargarMultiplicador('conversion', ${item.min === 0 ? 3 : item.min})"
+                     title="Click para cargar ${item.min === 0 ? 3 : item.min}%">
+                <span>${item.text}</span>
+                <span>→ ${Math.round(item.mult * 100)}%</span>
+            </div>`;
+        }
+    }
+    html += `<div class="multiplier-current">Tu valor: ${conversion || '-'}%</div>
+    </div>`;
+    
+    // Tabla Empatía
+    const multEmp = calcularMultiplicador('empatia', empatia);
+    let classEmp = 'multiplier-table';
+    if (multEmp >= 0.9) classEmp += ' good';
+    else if (multEmp >= 0.7) classEmp += ' warning';
+    else if (multEmp > 0) classEmp += ' danger';
+    
+    html += `<div class="${classEmp}">
+        <div class="multiplier-title">Empatía</div>`;
+    
+    const multiplicadorEmpatia = config.multiplicadores.empatia;
+    if (Array.isArray(multiplicadorEmpatia)) {
+        for (let i = 0; i < multiplicadorEmpatia.length; i++) {
+            const item = multiplicadorEmpatia[i];
+            const nextItem = multiplicadorEmpatia[i - 1];
+            const active = empatia >= item.min && (!nextItem || empatia < nextItem.min);
+            html += `<div class="multiplier-row ${active ? 'active' : ''}" 
+                     onclick="cargarMultiplicador('empatia', ${item.min === 0 ? 69 : item.min})"
+                     title="Click para cargar ${item.min === 0 ? 69 : item.min}%">
+                <span>${item.text}</span>
+                <span>→ ${Math.round(item.mult * 100)}%</span>
+            </div>`;
+        }
+    }
+    html += `<div class="multiplier-current">Tu valor: ${empatia || '-'}%</div>
+    </div>`;
+    
+    // Tabla Proceso
+    const multProc = calcularMultiplicador('proceso', proceso);
+    let classProc = 'multiplier-table';
+    if (multProc >= 0.9) classProc += ' good';
+    else if (multProc >= 0.7) classProc += ' warning';
+    else if (multProc > 0) classProc += ' danger';
+    
+    html += `<div class="${classProc}">
+        <div class="multiplier-title">Proceso</div>`;
+    
+    const multiplicadorProceso = config.multiplicadores.proceso;
+    if (Array.isArray(multiplicadorProceso)) {
+        for (let i = 0; i < multiplicadorProceso.length; i++) {
+            const item = multiplicadorProceso[i];
+            const nextItem = multiplicadorProceso[i - 1];
+            const active = proceso >= item.min && (!nextItem || proceso < nextItem.min);
+            html += `<div class="multiplier-row ${active ? 'active' : ''}" 
+                     onclick="cargarMultiplicador('proceso', ${item.min === 0 ? 69 : item.min})"
+                     title="Click para cargar ${item.min === 0 ? 69 : item.min}%">
+                <span>${item.text}</span>
+                <span>→ ${Math.round(item.mult * 100)}%</span>
+            </div>`;
+        }
+    }
+    html += `<div class="multiplier-current">Tu valor: ${proceso || '-'}%</div>
+    </div>`;
+
+    // Tabla Mora
+    const multMora = calcularMultiplicador('mora', mora);
+    let classMora = 'multiplier-table';
+    if (mora <= 2) classMora += ' good';
+    else if (mora <= 7) classMora += ' warning';
+    else classMora += ' danger';
+
+    html += `<div class="${classMora}">
+        <div class="multiplier-title">Mora</div>`;
+
+    const multiplicadorMora = config.multiplicadores.mora;
+    if (Array.isArray(multiplicadorMora)) {
+        for (let i = 0; i < multiplicadorMora.length; i++) {
+            const item = multiplicadorMora[i];
+            const nextItem = multiplicadorMora[i + 1];
+            // Para mora, la lógica es diferente: recorremos de menor a mayor
+            let active = false;
+            if (mora >= item.min) {
+                if (!nextItem || mora < nextItem.min) {
+                    active = true;
+                }
+            }
+            html += `<div class="multiplier-row ${active ? 'active' : ''}"
+                     onclick="cargarMultiplicador('mora', ${item.min})"
                      title="Click para cargar ${item.text}">
                 <span>${item.text}</span>
                 <span>→ ${Math.round(item.mult * 100)}%</span>
             </div>`;
-        });
-        
-        html += `<div class="multiplier-current">Tu valor: ${valores[tipo] || '-'}%</div>
-        </div>`;
-    });
+        }
+    }
+    let moraTexto = '-';
+    if (mora > 0) {
+        // Encontrar el texto correcto para el valor de mora
+        if (Array.isArray(multiplicadorMora)) {
+            for (let i = multiplicadorMora.length - 1; i >= 0; i--) {
+                const item = multiplicadorMora[i];
+                if (mora >= item.min) {
+                    moraTexto = item.text;
+                    break;
+                }
+            }
+        }
+    }
+    html += `<div class="multiplier-current">Tu valor: ${mora || '-'}${mora > 0 ? '% (' + moraTexto + ')' : ''}</div>
+    </div>`;
     
     container.innerHTML = html;
     
-    // Actualizar cálculo del multiplicador total
-    const multTotal = conversion * empatia * proceso * mora;
+    // Actualizar cálculo
+    const totalMult = Math.max(multConv * multEmp * multProc * multMora, 0.1);
     const calcElement = document.getElementById('multiplicadorCalc');
-    calcElement.innerHTML = `Cálculo: ${Math.round(conversion * 100)}% × ${Math.round(empatia * 100)}% × ${Math.round(proceso * 100)}% × ${Math.round(mora * 100)}% = ${Math.round(multTotal * 100)}%`;
+    if (calcElement) {
+        calcElement.textContent = conversion && empatia && proceso && mora ?
+            `Cálculo: ${multConv.toFixed(2)} × ${multEmp.toFixed(2)} × ${multProc.toFixed(2)} × ${multMora.toFixed(2)} = ${(totalMult*100).toFixed(1)}%` :
+            'Completa todos los campos de calidad';
+    }
     
-    return multTotal;
+    return totalMult;
 }
+
+
 
 // Cargar multiplicador
 function cargarMultiplicador(tipo, valor) {
@@ -938,6 +1065,12 @@ function updateCalculations() {
     const multProc = calcularMultiplicador('proceso', proceso);
     const multMora = calcularMultiplicador('mora', mora);
     const multiplicadorTotal = multConv * multEmp * multProc * multMora;
+    
+    // Actualizar cálculo de multiplicadores
+    const calcElement = document.getElementById('multiplicadorCalc');
+    if (calcElement) {
+        calcElement.innerHTML = `Cálculo: ${Math.round(multConv * 100)}% × ${Math.round(multEmp * 100)}% × ${Math.round(multProc * 100)}% × ${Math.round(multMora * 100)}% = ${Math.round(multiplicadorTotal * 100)}%`;
+    }
     
     updateMultiplicadorTables();
     
