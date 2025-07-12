@@ -1,6 +1,6 @@
-# 🧮 Sistema de Comisiones SERSA v2.0
+# 🧮 Sistema de Comisiones SERSA v2.1
 
-Sistema de cálculo de comisiones para asesores comerciales, completamente renovado con base de datos Supabase y arquitectura simplificada.
+Sistema de cálculo de comisiones para asesores comerciales, completamente renovado con base de datos Supabase, multiplicadores configurables y arquitectura simplificada.
 
 ## 🚀 Características Principales
 
@@ -8,12 +8,13 @@ Sistema de cálculo de comisiones para asesores comerciales, completamente renov
 - ✅ **Base de Datos Online**: Integración completa con Supabase (PostgreSQL)
 - ✅ **Panel de Administración**: Gestión completa de asesores y configuraciones
 - ✅ **Calculadora Avanzada**: Cálculo automático de bonos con multiplicadores
+- ✅ **Multiplicadores Configurables**: Sistema flexible para personalizar multiplicadores
 - ✅ **Nombres Personalizables**: Cambiar nombres de bonos desde el admin
 - ✅ **Reportes en PDF**: Generación automática de reportes
 - ✅ **Responsive**: Diseño adaptable a móviles y escritorio
 - ✅ **Backup Automático**: Sincronización en tiempo real con la nube
 
-## 📁 Estructura del Proyecto (Nueva Arquitectura)
+## 📁 Estructura del Proyecto (Arquitectura Unificada)
 
 ```
 Sersa-Comisiones-Prueba/
@@ -23,11 +24,48 @@ Sersa-Comisiones-Prueba/
 ├── 🛠️ admin.js                      # Lógica del panel de administración
 ├── 🎨 styles.css                    # Estilos principales
 ├── 💎 bonos.css                     # Estilos específicos de bonos
-├── 📚 README.md                     # Este archivo
+├── 📚 README.md                     # Documentación completa
 ├── 🏗️ ARQUITECTURA.md               # Documentación técnica detallada
-├── 🚀 deploy-render.md              # Guía de despliegue en Render
-└── 📂 backup-raiz-original/         # Archivos originales (respaldo)
+└── 📊 estructura-multiplicadores.md # Especificación de multiplicadores configurables
 ```
+
+## 🎯 Funcionalidades Principales
+
+### **Sistema Unificado**
+- Login único con selector de asesor
+- Calculadora integrada en la página principal
+- Configuraciones personalizadas por asesor
+- Historial de cálculos automático
+
+### **Calculadora de Comisiones Avanzada**
+- Cálculo automático de bonos por nivel
+- **Multiplicadores configurables dinámicos**:
+  - 🎯 **Tasa de Conversión**: Porcentaje de conversión de leads
+  - 💬 **Nivel de Empatía**: Satisfacción del cliente
+  - 📋 **Cumplimiento de Proceso**: Adherencia a procesos
+  - 💰 **Índice de Mora**: Control de mora en cartera
+- Barras de progreso visuales
+- Sugerencias de optimización automáticas
+- Generación de reportes PDF
+
+### **Panel de Administración Completo**
+- **Gestión de Asesores**: Agregar, editar, eliminar asesores
+- **Configuración del Sistema**: Cambiar todos los parámetros
+- **Personalización de Bonos**: Cambiar nombres y valores de bonos
+- **📊 Multiplicadores Configurables**: 
+  - Editor visual de rangos y multiplicadores
+  - Configuración de nombres, iconos y descripciones
+  - Plantillas predefinidas (Ventas, Servicios Financieros)
+  - Previsualización en tiempo real
+- **Reportes y Estadísticas**: Ver historial completo
+- **Respaldo de Datos**: Exportar/importar configuraciones
+
+### **Nuevas Características v2.1**
+- ✨ **Multiplicadores Totalmente Configurables**: Sistema flexible para personalizar todos los multiplicadores
+- ✨ **Editor Visual de Rangos**: Interfaz intuitiva para configurar rangos de multiplicadores
+- ✨ **Plantillas de Multiplicadores**: Configuraciones predefinidas para diferentes tipos de negocio
+- ✨ **Validación Automática**: Prevención de solapamientos y errores en configuración
+- ✨ **Previsualización en Tiempo Real**: Ver impacto de cambios antes de aplicar
 
 ## 🔧 Instalación y Uso
 
@@ -74,7 +112,7 @@ php -S localhost:8000
 #### `configuracion_sistema`
 - `id` (UUID) - Identificador único
 - `clave` (TEXT) - Nombre de la configuración
-- `valor` (JSONB) - Valor de la configuración
+- `valor` (JSONB) - Valor de la configuración (incluye multiplicadores)
 - `descripcion` (TEXT) - Descripción de la configuración
 - `updated_at` (TIMESTAMP) - Última actualización
 
@@ -84,6 +122,33 @@ php -S localhost:8000
 - `fecha` (TIMESTAMP) - Fecha del cálculo
 - `datos_calculo` (JSONB) - Datos completos del cálculo
 - `resultado` (JSONB) - Resultado del cálculo
+
+## 📊 Sistema de Multiplicadores Configurables
+
+### **Estructura Flexible**
+```javascript
+multiplicadores: {
+    conversion: {
+        nombre: "Tasa de Conversión",
+        icono: "🎯",
+        unidad: "%",
+        descripcion: "Porcentaje de conversión de leads",
+        rangos: [
+            {min: 15, mult: 1.1, text: "15%+", color: "green"},
+            {min: 11, mult: 1.0, text: "11-14%", color: "blue"},
+            // ... más rangos configurables
+        ]
+    }
+    // ... otros multiplicadores
+}
+```
+
+### **Beneficios del Sistema**
+1. **Flexibilidad Total**: Cada multiplicador es completamente personalizable
+2. **Facilidad de Uso**: Interfaz visual e intuitiva
+3. **Escalabilidad**: Agregar nuevos tipos de multiplicadores fácilmente
+4. **Transparencia**: Los asesores ven exactamente cómo se calculan sus bonos
+5. **Optimización**: Ajustar multiplicadores según performance real
 
 ## 👥 Asesores Configurados
 
@@ -104,34 +169,6 @@ php -S localhost:8000
 - **Usuario**: Administrador
 - **Contraseña**: `gtadmin`
 - **URL**: `/admin.html`
-
-## 🎯 Funcionalidades Principales
-
-### **Sistema Unificado**
-- Login único con selector de asesor
-- Calculadora integrada en la página principal
-- Configuraciones personalizadas por asesor
-- Historial de cálculos automático
-
-### **Calculadora de Comisiones**
-- Cálculo automático de bonos por nivel
-- Multiplicadores dinámicos (conversión, empatía, proceso, mora)
-- Barras de progreso visuales
-- Sugerencias de optimización automáticas
-- Generación de reportes PDF
-
-### **Panel de Administración Completo**
-- **Gestión de Asesores**: Agregar, editar, eliminar asesores
-- **Configuración del Sistema**: Cambiar todos los parámetros
-- **Personalización de Bonos**: Cambiar nombres y valores de bonos
-- **Reportes y Estadísticas**: Ver historial completo
-- **Respaldo de Datos**: Exportar/importar configuraciones
-
-### **Nuevas Características v2.0**
-- ✨ **Nombres Personalizables**: Cambiar nombres de bonos desde el admin
-- ✨ **Gestión Simplificada**: Un solo lugar para todo
-- ✨ **Backup Automático**: Sincronización constante con Supabase
-- ✨ **Interfaz Mejorada**: Diseño más limpio y funcional
 
 ## 🚀 Despliegue
 
@@ -170,11 +207,11 @@ const asesores = await obtenerAsesores();
 // Validar login de asesor
 const esValido = await validarAsesor('Base', '20');
 
-// Obtener configuración del sistema
-const config = await obtenerConfiguracion('salario_base');
+// Obtener configuración del sistema (incluye multiplicadores)
+const config = await obtenerConfiguracion('multiplicadores');
 
-// Actualizar configuración
-await actualizarConfiguracion('salario_base', nuevoValor);
+// Actualizar configuración de multiplicadores
+await actualizarConfiguracion('multiplicadores', nuevosMultiplicadores);
 
 // Guardar cálculo en historial
 await guardarCalculoEnHistorial('Alejandra', datosCalculo);
@@ -188,7 +225,15 @@ await eliminarAsesor('Nombre');
 
 ## 🔄 Changelog
 
-### **v2.0.0** (Actual - Enero 2025)
+### **v2.1.0** (Actual - Enero 2025)
+- ✅ **Sistema de Multiplicadores Configurables**: Editor visual completo
+- ✅ **Plantillas de Multiplicadores**: Configuraciones predefinidas
+- ✅ **Validación Avanzada**: Prevención de errores en configuración
+- ✅ **Previsualización en Tiempo Real**: Ver cambios antes de aplicar
+- ✅ **Interfaz Mejorada**: Mejor experiencia de usuario en el admin
+- ✅ **Documentación Unificada**: Toda la información en un solo lugar
+
+### **v2.0.0** (Enero 2025)
 - ✅ **Arquitectura Simplificada**: Sistema unificado en la raíz
 - ✅ **Integración Completa Supabase**: Base de datos online
 - ✅ **Panel Admin Renovado**: Gestión completa desde una interfaz
@@ -216,7 +261,7 @@ await eliminarAsesor('Nombre');
 ## 📚 Documentación Adicional
 
 - **[ARQUITECTURA.md](./ARQUITECTURA.md)**: Documentación técnica detallada
-- **[deploy-render.md](./deploy-render.md)**: Guía paso a paso para desplegar en Render
+- **[estructura-multiplicadores.md](./estructura-multiplicadores.md)**: Especificación completa del sistema de multiplicadores
 
 ## 🔧 Configuración de Supabase
 
@@ -252,6 +297,11 @@ const supabaseKey = 'TU_CLAVE_AQUÍ';
    - Comprobar multiplicadores en el admin
    - Revisar valores base actualizados
 
+4. **Problemas con Multiplicadores**
+   - Verificar que no haya solapamientos en rangos
+   - Comprobar que los multiplicadores sean números válidos
+   - Revisar la previsualización antes de guardar
+
 ### **Logs y Depuración:**
 - Abrir herramientas de desarrollador (F12)
 - Revisar consola para errores
@@ -264,4 +314,4 @@ Este proyecto es de uso interno para SERSA.
 ---
 
 **Desarrollado con ❤️ para el equipo de SERSA**  
-**Sistema de Comisiones v2.0 - Enero 2025** 
+**Sistema de Comisiones v2.1 - Enero 2025** 
