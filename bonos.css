@@ -1252,3 +1252,17 @@
     background: #ccc;
 }
 
+/* ========================================
+   CORRECCIÓN DE SCROLL PARA ADMIN
+   ======================================== */
+/* Sobrescribir estilos problemáticos para admin */
+body:has(#admin-content) {
+    overflow-y: auto !important;
+    height: auto !important;
+}
+
+#admin-content {
+    overflow-y: visible !important;
+    height: auto !important;
+}
+

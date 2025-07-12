@@ -18,8 +18,9 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #e8eaf0;
             font-size: 12px;
-            overflow: hidden;
-            height: 100vh;
+            overflow-y: auto;
+            height: auto;
+            min-height: 100vh;
             color: #212121;
         }
         
@@ -28,7 +29,7 @@
             padding: 0 10px;
             box-sizing: border-box;
             display: flex;
-            height: 100vh;
+            min-height: 100vh;
             gap: 1px;
             background: #ccc;
         }
@@ -2008,41 +2009,12 @@
             }
         }
 
-/* Estilos adicionales para el selector de asesores */
-.login-select {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 14px;
-    background: white;
-    cursor: pointer;
-}
-
-.login-select:focus {
-    outline: none;
-    border-color: #006D77;
-    box-shadow: 0 0 0 3px rgba(0,109,119,0.1);
-}
-
+/* Estilos para información del asesor */
 .asesor-info {
-    background: #e0e7ff;
-    padding: 10px;
-    border-radius: 8px;
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
     margin-bottom: 15px;
-    font-size: 14px;
-    text-align: center;
-}
-
-.input-group-login {
-    margin-bottom: 10px;
-}
-
-.input-group-login label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #333;
+    border: 1px solid #e0e0e0;
+    font-size: 13px;
 }
