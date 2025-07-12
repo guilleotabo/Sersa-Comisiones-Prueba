@@ -12,16 +12,16 @@
         }
 
         .admin-container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
         .admin-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 25px 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            padding: 20px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -35,20 +35,20 @@
         /* Tabs */
         .admin-tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
+            gap: 8px;
+            margin-bottom: 20px;
             background: white;
-            padding: 10px;
-            border-radius: 10px;
+            padding: 8px;
+            border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         .tab-button {
-            padding: 12px 24px;
+            padding: 10px 20px;
             border: none;
             background: transparent;
             cursor: pointer;
-            border-radius: 8px;
-            font-size: 15px;
+            border-radius: 6px;
+            font-size: 14px;
             font-weight: 500;
             color: #666;
             transition: all 0.3s;
@@ -70,16 +70,16 @@
         /* Sections */
         .admin-section {
             background: white;
-            padding: 30px;
-            border-radius: 12px;
+            padding: 20px;
+            border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .admin-section h3 {
             margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: 18px;
             color: #333;
-            font-size: 22px;
+            font-size: 20px;
         }
         .admin-section h4 {
             margin-top: 30px;
@@ -846,31 +846,31 @@
             justify-content: space-between;
             align-items: center;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            padding: 18px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
         .selector-group {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
         
         .selector-group label {
-            font-weight: 700;
+            font-weight: 600;
             color: #333;
-            font-size: 16px;
+            font-size: 15px;
         }
         
         .selector-group select {
-            padding: 12px 20px;
-            font-size: 16px;
+            padding: 10px 16px;
+            font-size: 14px;
             border: 2px solid #ddd;
-            border-radius: 10px;
+            border-radius: 8px;
             background: white;
-            min-width: 300px;
+            min-width: 280px;
             transition: all 0.3s ease;
         }
         
@@ -887,22 +887,23 @@
         
         .config-navigation {
             display: flex;
-            gap: 5px;
-            margin-bottom: 30px;
+            gap: 4px;
+            margin-bottom: 20px;
             background: white;
-            padding: 8px;
-            border-radius: 10px;
+            padding: 6px;
+            border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
         .nav-link {
-            padding: 12px 20px;
+            padding: 8px 16px;
             text-decoration: none;
             color: #666;
-            font-weight: 600;
-            border-radius: 8px;
+            font-weight: 500;
+            border-radius: 6px;
             transition: all 0.3s ease;
             cursor: pointer;
+            font-size: 14px;
         }
         
         .nav-link:hover {
@@ -920,27 +921,27 @@
         }
         
         .config-section-unified {
-            margin-bottom: 40px;
-            scroll-margin-top: 100px;
+            margin-bottom: 25px;
+            scroll-margin-top: 80px;
         }
         
         .section-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
             color: #333;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 3px solid #667eea;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #667eea;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         
         .config-row {
             display: grid;
             grid-template-columns: 1fr 2fr;
-            gap: 25px;
-            margin-bottom: 30px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
         
         .config-col {
@@ -951,32 +952,27 @@
         .config-card {
             background: white;
             border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 25px;
+            border-radius: 10px;
+            padding: 16px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-        
-        .config-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+            margin-bottom: 20px;
         }
         
         .config-card h5 {
-            font-size: 18px;
-            font-weight: 700;
+            margin: 0 0 12px 0;
             color: #333;
-            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
         .config-card input {
-            padding: 12px 16px;
+            padding: 10px 14px;
             border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            font-size: 15px;
+            border-radius: 6px;
+            font-size: 14px;
             transition: all 0.3s ease;
             background: #f8f9fa;
         }
@@ -991,19 +987,19 @@
         .niveles-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
         }
         
         .nombres-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 15px;
         }
         
         .nombre-item {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         
         .nombre-item label {
@@ -1014,29 +1010,54 @@
         
         .tabla-compacta {
             overflow-x: auto;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-top: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        /* Estilos para hacer la tabla más compacta y legible */
+        .config-table-unified th:nth-child(1) { width: 9%; }    /* Nivel - un poco más ancho para nombres */
+        .config-table-unified th:nth-child(2),
+        .config-table-unified th:nth-child(3),
+        .config-table-unified th:nth-child(4) { width: 9.5%; }  /* Metas - Interno, Externo, Recup. */
+        .config-table-unified th:nth-child(5) { width: 6%; }    /* Cantidad - más pequeño */
+        .config-table-unified th:nth-child(6),
+        .config-table-unified th:nth-child(7),
+        .config-table-unified th:nth-child(8),
+        .config-table-unified th:nth-child(9),
+        .config-table-unified th:nth-child(10),
+        .config-table-unified th:nth-child(11) { width: 8.5%; } /* Pagos - uniformes */
+        
+        .config-table-unified input[type="number"] {
+            text-align: center;
+        }
+        
+        .config-table-unified input[type="text"] {
+            text-align: right;
         }
         
         .config-table-unified {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 11px;
             background: white;
+            table-layout: fixed;
         }
         
         .config-table-unified th {
             background: #667eea;
             color: white;
-            padding: 12px 8px;
+            padding: 8px 4px;
             text-align: center;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 11px;
             border: 1px solid #5a67d8;
+            line-height: 1.2;
         }
         
         .config-table-unified td {
-            padding: 8px;
+            padding: 4px;
             border: 1px solid #e5e7eb;
             vertical-align: middle;
         }
@@ -1054,15 +1075,17 @@
             font-weight: 700;
             color: #555;
             text-align: center;
-            min-width: 80px;
+            min-width: 70px;
+            font-size: 11px;
+            padding: 6px 4px !important;
         }
         
         .config-table-unified input {
             width: 100%;
-            padding: 8px 10px;
+            padding: 5px 6px;
             border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 3px;
+            font-size: 11px;
             background: white;
             transition: all 0.3s ease;
         }
@@ -1076,17 +1099,17 @@
         .multiplicadores-container {
             background: white;
             border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 25px;
+            border-radius: 10px;
+            padding: 18px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
         .floating-actions {
             position: sticky;
-            bottom: 20px;
+            bottom: 15px;
             display: flex;
             justify-content: center;
-            margin-top: 40px;
+            margin-top: 25px;
             z-index: 100;
         }
         
@@ -1095,15 +1118,15 @@
             color: white;
             border: none;
             border-radius: 50px;
-            padding: 18px 35px;
-            font-size: 16px;
+            padding: 15px 30px;
+            font-size: 15px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
         
         .btn-floating:hover {
@@ -1444,17 +1467,37 @@
             }
             
             .config-table-unified {
-                font-size: 12px;
+                font-size: 10px;
             }
             
             .config-table-unified th,
             .config-table-unified td {
-                padding: 6px 4px;
+                padding: 4px 2px;
             }
             
             .config-table-unified input {
-                padding: 6px 8px;
-                font-size: 12px;
+                padding: 4px 5px;
+                font-size: 10px;
+            }
+            
+            .nivel-cell {
+                font-size: 10px;
+                padding: 5px 2px !important;
+            }
+            
+            .config-card {
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+            
+            .config-card h5 {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            
+            .tabla-compacta {
+                margin-top: 6px;
+                border-radius: 4px;
             }
             
             .floating-actions {
@@ -1538,9 +1581,9 @@
         .multiplicadores-header {
             text-align: center;
             margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 10px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 0;
         }
         
         .multiplicadores-header h4 {
@@ -1557,37 +1600,37 @@
         
         .multiplicador-card-nueva {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 25px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 15px;
             overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.2s ease;
         }
         
         .multiplicador-card-nueva:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
         }
         
         .multiplicador-header-nueva {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
+            padding: 12px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
         .multiplicador-title-section h5 {
-            margin: 0 0 5px 0;
-            font-size: 1.2em;
+            margin: 0 0 3px 0;
+            font-size: 1em;
             font-weight: 600;
         }
         
         .multiplicador-desc {
             margin: 0;
             opacity: 0.9;
-            font-size: 0.85em;
+            font-size: 0.75em;
         }
         
         .multiplicador-actions {
@@ -1596,11 +1639,11 @@
         }
         
         .btn-action {
-            padding: 8px 16px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 0.85em;
+            font-size: 0.75em;
             font-weight: 500;
             transition: all 0.2s ease;
         }
@@ -1614,6 +1657,83 @@
         .btn-add:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-1px);
+        }
+        
+        /* NUEVOS ESTILOS COMPACTOS PARA RANGOS */
+        .rango-item-nueva {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            padding: 10px;
+            transition: all 0.2s ease;
+        }
+        
+        .rango-item-nueva:hover {
+            border-color: #667eea;
+            box-shadow: 0 1px 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .rango-controls {
+            display: grid;
+            grid-template-columns: 80px 120px 80px 60px;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .rango-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .rango-field label {
+            font-size: 10px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+        
+        .rango-input {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+        
+        .rango-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-action.btn-delete {
+            background: #ef4444;
+            color: white;
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+        
+        .btn-action.btn-delete:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+        
+        /* Layout en grid para los 4 multiplicadores */
+        .multiplicadores-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 1200px) {
+            .multiplicadores-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         .btn-delete {
@@ -1711,6 +1831,8 @@
                 transform: translateY(0);
             }
         }
+
+
     </style>
 </head>
 <body>
@@ -1863,21 +1985,21 @@
                                                 <th colspan="6">💎 Pagos/Bonos</th>
                                             </tr>
                                             <tr>
-                                                <th>Interno</th>
-                                                <th>Externo</th>
-                                                <th>Recuperados</th>
-                                                <th>Cantidad</th>
-                                                <th>Carrera</th>
-                                                <th>Interno</th>
-                                                <th>Externo</th>
-                                                <th>Recuperados</th>
-                                                <th>Cantidad</th>
-                                                <th>Equipo</th>
+                                                <th title="Monto Interno">Interno</th>
+                                                <th title="Monto Externo">Externo</th>
+                                                <th title="Recuperados">Recup.</th>
+                                                <th title="Cantidad">Cant.</th>
+                                                <th title="Bono Carrera">Carrera</th>
+                                                <th title="Pago Interno">Interno</th>
+                                                <th title="Pago Externo">Externo</th>
+                                                <th title="Pago Recuperados">Recup.</th>
+                                                <th title="Pago Cantidad">Cant.</th>
+                                                <th title="Bono Equipo">Equipo</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td class="nivel-cell">Nivel 1</td>
+                                                <td class="nivel-cell">Capilla</td>
                                                 <td><input type="text" id="config-asesor-meta-montoInterno-0" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoExterno-0" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoRecuperado-0" onkeyup="formatearInputAdmin(this)"></td>
@@ -1890,7 +2012,7 @@
                                                 <td><input type="text" id="config-asesor-pago-equipo-0" onkeyup="formatearInputAdmin(this)"></td>
                                             </tr>
                                             <tr>
-                                                <td class="nivel-cell">Nivel 2</td>
+                                                <td class="nivel-cell">Junior</td>
                                                 <td><input type="text" id="config-asesor-meta-montoInterno-1" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoExterno-1" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoRecuperado-1" onkeyup="formatearInputAdmin(this)"></td>
@@ -1903,7 +2025,7 @@
                                                 <td><input type="text" id="config-asesor-pago-equipo-1" onkeyup="formatearInputAdmin(this)"></td>
                                             </tr>
                                             <tr>
-                                                <td class="nivel-cell">Nivel 3</td>
+                                                <td class="nivel-cell">Senior A</td>
                                                 <td><input type="text" id="config-asesor-meta-montoInterno-2" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoExterno-2" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoRecuperado-2" onkeyup="formatearInputAdmin(this)"></td>
@@ -1916,7 +2038,7 @@
                                                 <td><input type="text" id="config-asesor-pago-equipo-2" onkeyup="formatearInputAdmin(this)"></td>
                                             </tr>
                                             <tr>
-                                                <td class="nivel-cell">Nivel 4</td>
+                                                <td class="nivel-cell">Senior B</td>
                                                 <td><input type="text" id="config-asesor-meta-montoInterno-3" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoExterno-3" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoRecuperado-3" onkeyup="formatearInputAdmin(this)"></td>
@@ -1929,7 +2051,7 @@
                                                 <td><input type="text" id="config-asesor-pago-equipo-3" onkeyup="formatearInputAdmin(this)"></td>
                                             </tr>
                                             <tr>
-                                                <td class="nivel-cell">Nivel 5</td>
+                                                <td class="nivel-cell">Máster</td>
                                                 <td><input type="text" id="config-asesor-meta-montoInterno-4" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoExterno-4" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoRecuperado-4" onkeyup="formatearInputAdmin(this)"></td>
@@ -1942,7 +2064,7 @@
                                                 <td><input type="text" id="config-asesor-pago-equipo-4" onkeyup="formatearInputAdmin(this)"></td>
                                             </tr>
                                             <tr>
-                                                <td class="nivel-cell">Nivel 6</td>
+                                                <td class="nivel-cell">Genio</td>
                                                 <td><input type="text" id="config-asesor-meta-montoInterno-5" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoExterno-5" onkeyup="formatearInputAdmin(this)"></td>
                                                 <td><input type="text" id="config-asesor-meta-montoRecuperado-5" onkeyup="formatearInputAdmin(this)"></td>

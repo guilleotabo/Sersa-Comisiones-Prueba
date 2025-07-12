@@ -886,6 +886,7 @@ async function cargarMultiplicadoresAsesorUnificado(asesorId, config) {
             <h4>📊 Configuración de Multiplicadores</h4>
             <p class="help-text">Los multiplicadores se aplican en cadena: Conversión × Empatía × Proceso × Mora</p>
         </div>
+        <div class="multiplicadores-grid">
     `;
     
     // Mapeo de nombres y colores
@@ -927,6 +928,8 @@ async function cargarMultiplicadoresAsesorUnificado(asesorId, config) {
         `;
     });
     
+    html += `</div>`; // Cerrar multiplicadores-grid
+    
     container.innerHTML = html;
     
     // Guardar referencia para uso posterior (confirmación)
@@ -935,13 +938,13 @@ async function cargarMultiplicadoresAsesorUnificado(asesorId, config) {
     console.log('🎯 Multiplicadores cargados en interfaz y guardados en window.multiplicadoresActuales');
 }
 
-// Crear HTML para un rango individual
+// Crear HTML para un rango individual - VERSIÓN COMPACTA
 function crearRangoHTML(multKey, rango, index) {
     return `
         <div class="rango-item-nueva" data-mult="${multKey}" data-index="${index}">
             <div class="rango-controls">
                 <div class="rango-field">
-                    <label>Valor mínimo</label>
+                    <label>Min</label>
                     <input type="number" 
                            value="${rango.min}" 
                            min="0" 
@@ -952,7 +955,7 @@ function crearRangoHTML(multKey, rango, index) {
                 </div>
                 
                 <div class="rango-field">
-                    <label>Texto</label>
+                    <label>Descripción</label>
                     <input type="text" 
                            value="${rango.text}" 
                            data-field="text"
@@ -961,7 +964,7 @@ function crearRangoHTML(multKey, rango, index) {
                 </div>
                 
                 <div class="rango-field">
-                    <label>Multiplicador</label>
+                    <label>Mult</label>
                     <input type="number" 
                            value="${rango.mult}" 
                            step="0.01" 
@@ -973,11 +976,11 @@ function crearRangoHTML(multKey, rango, index) {
                 </div>
                 
                 <div class="rango-field">
-                    <label>Acciones</label>
+                    <label>Del</label>
                     <button class="btn-action btn-delete" 
                             onclick="eliminarRangoNuevo('${multKey}', ${index})" 
                             title="Eliminar rango">
-                        🗑️
+                        ✕
                     </button>
                 </div>
             </div>
