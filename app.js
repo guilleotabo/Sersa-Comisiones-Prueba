@@ -7,6 +7,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Variables globales
 let asesorActual = null;
+let asesorActualId = null;
 let configuracionActual = null;
 let isCalculating = false;
 
@@ -73,9 +74,10 @@ window.addEventListener('DOMContentLoaded', async function() {
 async function cargarAsesores() {
     try {
         const { data, error } = await supabase
-            .from('asesores')
+            .from('users')
             .select('nombre')
             .eq('activo', true)
+            .eq('rol', 'asesor')
             .order('nombre');
 
         if (error) throw error;
@@ -111,18 +113,21 @@ async function verificarContrasena() {
     }
     
     try {
-        // Obtener contraseña del asesor
+        // Verificar usuario y contraseña directamente en tabla users
         const { data, error } = await supabase
-            .from('contraseñas')
-            .select('password')
-            .eq('asesor', asesor)
+            .from('users')
+            .select('id, password_hash')
+            .eq('nombre', asesor)
+            .eq('activo', true)
+            .eq('rol', 'asesor')
             .single();
         
         if (error) throw error;
         
-        if (data.password === password) {
+        if (data.password_hash === password) {
             asesorActual = asesor;
-            await cargarConfiguracion();
+            asesorActualId = data.id;
+            await cargarConfiguracion(data.id);
             mostrarSistema();
         } else {
             mostrarError('Contraseña incorrecta');
@@ -134,31 +139,39 @@ async function verificarContrasena() {
 }
 
 // FUNCIÓN 3: Cargar configuración del asesor
-async function cargarConfiguracion(asesorId) {
+async function cargarConfiguracion(userId = null) {
     try {
-        // Primero intentar cargar configuración específica del asesor
-        const { data: configAsesor, error: errorAsesor } = await supabase
-            .from('configuraciones')
-            .select('*')
-            .eq('asesor_id', asesorId)
-            .eq('activa', true)
-            .single();
-        
-        if (configAsesor) {
-            configuracionActual = configAsesor;
-        } else {
-            // Si no hay config específica, usar configuración general
-            const { data: configGeneral, error: errorGeneral } = await supabase
-                .from('configuracion_sistema')
-                .select('*')
+        // Si hay userId, intentar cargar configuración específica del usuario
+        if (userId) {
+            const { data: configUsuario, error: errorUsuario } = await supabase
+                .from('settings')
+                .select('config')
+                .eq('tipo', 'user_specific')
+                .eq('user_id', userId)
+                .eq('activo', true)
                 .single();
             
-            if (configGeneral) {
-                configuracionActual = configGeneral;
-            } else {
-                // Usar configuración por defecto
-                configuracionActual = CONFIG_DEFAULT;
+            if (configUsuario && configUsuario.config) {
+                configuracionActual = configUsuario.config;
+                aplicarConfiguracion();
+                return;
             }
+        }
+        
+        // Si no hay config específica, usar configuración global
+        const { data: configGlobal, error: errorGlobal } = await supabase
+            .from('settings')
+            .select('config')
+            .eq('tipo', 'global')
+            .is('user_id', null)
+            .eq('activo', true)
+            .single();
+        
+        if (configGlobal && configGlobal.config) {
+            configuracionActual = configGlobal.config;
+        } else {
+            // Usar configuración por defecto
+            configuracionActual = CONFIG_DEFAULT;
         }
         
         // Aplicar configuración a la interfaz
@@ -184,6 +197,7 @@ function mostrarSistema() {
 // FUNCIÓN 5: Cerrar sesión
 function cerrarSesion() {
     asesorActual = null;
+    asesorActualId = null;
     configuracionActual = null;
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('main-app').style.display = 'none';
@@ -915,7 +929,7 @@ function updateCalculations() {
     });
     
     // Guardar en Supabase si hay asesor logueado
-    if (asesorActual) {
+    if (asesorActualId) {
         guardarCalculoEnSupabase({
             montoInterno,
             montoExterno,
@@ -1017,15 +1031,14 @@ function generarSugerencias(datos) {
 
 // Guardar cálculo en Supabase
 async function guardarCalculoEnSupabase(datos) {
-    if (!asesorActual) return;
+    if (!asesorActualId) return;
     
     try {
         const { error } = await supabase
-            .from('historial_calculos')
+            .from('calculations')
             .insert({
-                asesor_id: asesorActual.id,
-                fecha: new Date().toISOString(),
-                inputs: {
+                user_id: asesorActualId,
+                data: {
                     montoInterno: datos.montoInterno,
                     montoExterno: datos.montoExterno,
                     montoRecuperado: datos.montoRecuperado,
@@ -1038,7 +1051,7 @@ async function guardarCalculoEnSupabase(datos) {
                     nivelAnterior: datos.nivelAnterior,
                     nivelEquipo: datos.nivelEquipo
                 },
-                resultados: {
+                resultado: {
                     nivelCarrera: datos.nivelCarrera,
                     bonos: datos.bonos,
                     subtotal: datos.subtotal,

@@ -25,9 +25,10 @@ async function cargarDatosAdmin() {
 // Cargar lista de asesores en admin
 async function cargarAsesoresAdmin() {
     try {
-        const { data: asesores, error } = await supabase
-            .from('asesores')
+        const { data: usuarios, error } = await supabase
+            .from('users')
             .select('*')
+            .eq('rol', 'asesor')
             .order('nombre');
         
         if (error) throw error;
@@ -35,20 +36,20 @@ async function cargarAsesoresAdmin() {
         const tbody = document.getElementById('asesores-tbody');
         tbody.innerHTML = '';
         
-        asesores.forEach(asesor => {
+        usuarios.forEach(usuario => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${asesor.nombre}</td>
-                <td>${asesor.email || '-'}</td>
+                <td>${usuario.nombre}</td>
+                <td>${usuario.email || '-'}</td>
                 <td>
-                    <span class="status-badge ${asesor.activo ? 'active' : 'inactive'}">
-                        ${asesor.activo ? 'Activo' : 'Inactivo'}
+                    <span class="status-badge ${usuario.activo ? 'active' : 'inactive'}">
+                        ${usuario.activo ? 'Activo' : 'Inactivo'}
                     </span>
                 </td>
                 <td>
-                    <button class="btn-edit" onclick="editarAsesor(${asesor.id})">✏️</button>
-                    <button class="btn-toggle" onclick="toggleAsesor(${asesor.id}, ${!asesor.activo})">
-                        ${asesor.activo ? '❌' : '✅'}
+                    <button class="btn-edit" onclick="editarAsesor('${usuario.id}')">✏️</button>
+                    <button class="btn-toggle" onclick="toggleAsesor('${usuario.id}', ${!usuario.activo})">
+                        ${usuario.activo ? '❌' : '✅'}
                     </button>
                 </td>
             `;
@@ -71,29 +72,18 @@ async function agregarAsesor() {
     if (!password) return;
     
     try {
-        // Crear asesor
-        const { data: asesor, error: errorAsesor } = await supabase
-            .from('asesores')
+        // Crear usuario (combina asesor + login)
+        const { error } = await supabase
+            .from('users')
             .insert({
                 nombre: nombre,
                 email: email || null,
-                activo: true
-            })
-            .select()
-            .single();
-        
-        if (errorAsesor) throw errorAsesor;
-        
-        // Crear usuario
-        const { error: errorUsuario } = await supabase
-            .from('usuarios')
-            .insert({
-                asesor_id: asesor.id,
-                username: nombre.toLowerCase().replace(/\s+/g, ''),
-                password_hash: password // En producción esto debería ser un hash
+                password_hash: password, // En producción esto debería ser un hash
+                activo: true,
+                rol: 'asesor'
             });
         
-        if (errorUsuario) throw errorUsuario;
+        if (error) throw error;
         
         alert('✅ Asesor agregado exitosamente');
         await cargarAsesoresAdmin();
@@ -108,7 +98,7 @@ async function agregarAsesor() {
 async function toggleAsesor(id, activo) {
     try {
         const { error } = await supabase
-            .from('asesores')
+            .from('users')
             .update({ activo: activo })
             .eq('id', id);
         
@@ -125,18 +115,21 @@ async function toggleAsesor(id, activo) {
 // Cargar configuración general
 async function cargarConfiguracionGeneral() {
     try {
-        const { data: config, error } = await supabase
-            .from('configuracion_sistema')
-            .select('*')
+        const { data: configData, error } = await supabase
+            .from('settings')
+            .select('config')
+            .eq('tipo', 'global')
+            .is('user_id', null)
+            .eq('activo', true)
             .single();
         
-        if (error || !config) {
+        if (error || !configData || !configData.config) {
             // Usar configuración por defecto
             aplicarConfiguracionAdmin(CONFIG_DEFAULT);
             return;
         }
         
-        aplicarConfiguracionAdmin(config);
+        aplicarConfiguracionAdmin(configData.config);
         
     } catch (error) {
         console.error('Error cargando configuración:', error);
@@ -242,10 +235,12 @@ async function guardarConfiguracion() {
             if (input) config.nombres_bonos[tipo] = input.value;
         });
         
-        // Guardar en Supabase
+        // Guardar en Supabase (actualizar configuración global)
         const { error } = await supabase
-            .from('configuracion_sistema')
-            .upsert(config);
+            .from('settings')
+            .update({ config: config })
+            .eq('tipo', 'global')
+            .is('user_id', null);
         
         if (error) throw error;
         
@@ -280,6 +275,49 @@ function cambiarTab(tabName) {
     // Activar tab seleccionada
     document.getElementById(`tab-${tabName}`).classList.add('active');
     event.target.classList.add('active');
+}
+
+// Editar asesor
+async function editarAsesor(id) {
+    try {
+        const { data: usuario, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        
+        const nuevoNombre = prompt('Nuevo nombre:', usuario.nombre);
+        if (!nuevoNombre) return;
+        
+        const nuevoEmail = prompt('Nuevo email:', usuario.email || '');
+        const nuevaPassword = prompt('Nueva contraseña (dejar vacío para mantener actual):', '');
+        
+        // Actualizar usuario (incluye todo en una tabla)
+        const updateData = {
+            nombre: nuevoNombre,
+            email: nuevoEmail || null
+        };
+        
+        if (nuevaPassword) {
+            updateData.password_hash = nuevaPassword;
+        }
+        
+        const { error: errorUpdate } = await supabase
+            .from('users')
+            .update(updateData)
+            .eq('id', id);
+        
+        if (errorUpdate) throw errorUpdate;
+        
+        alert('✅ Asesor actualizado exitosamente');
+        await cargarAsesoresAdmin();
+        
+    } catch (error) {
+        console.error('Error editando asesor:', error);
+        alert('❌ Error editando asesor');
+    }
 }
 
 // Volver al sistema principal
