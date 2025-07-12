@@ -1,25 +1,25 @@
-# 🧮 Sistema de Comisiones SERSA - Documentación Técnica Completa
+# Sistema de Comisiones SERSA - Documentación Técnica
 
-## 📋 RESUMEN TÉCNICO
+## ARQUITECTURA
 
-Sistema de cálculo de comisiones para asesores comerciales con arquitectura simplificada, base de datos Supabase y multiplicadores configurables dinámicos.
+Sistema de cálculo de comisiones con:
+- Frontend: HTML/CSS/JS estático
+- Backend: Supabase (PostgreSQL)
+- Autenticación: Custom con tabla usuarios
+- Hosting: Sitio estático (Render/Netlify/Vercel)
 
-## 🗂️ ESTRUCTURA DE ARCHIVOS
+## ESTRUCTURA DE ARCHIVOS
 
 ```
-Sersa-Comisiones-Prueba/
-├── index.html                       # Página principal - Login + Calculadora
-├── admin.html                       # Panel de administración
-├── app.js                          # Lógica principal del sistema
-├── admin.js                        # Lógica del panel de administración
-├── styles.css                      # Estilos principales
-├── bonos.css                       # Estilos específicos de bonos
-├── README.md                       # Esta documentación técnica
-├── MANUAL-USUARIO.md               # Manual de uso para usuarios finales
-└── estructura-multiplicadores.md   # Especificación de multiplicadores
+├── index.html          # Página principal - Login + Calculadora
+├── admin.html          # Panel de administración
+├── app.js              # Lógica principal del sistema
+├── admin.js            # Lógica del panel de administración
+├── styles.css          # Estilos principales
+├── bonos.css           # Estilos específicos de bonos
 ```
 
-## 🗄️ BASE DE DATOS (SUPABASE)
+## BASE DE DATOS (SUPABASE)
 
 ### Configuración de conexión:
 ```javascript
@@ -28,21 +28,10 @@ const supabaseKey = 'tu-clave-publica';
 const supabase = createClient(supabaseUrl, supabaseKey);
 ```
 
-### Tablas y esquemas:
+### Tablas:
 
-#### `asesores`
 ```sql
-CREATE TABLE asesores (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    nombre TEXT NOT NULL,
-    email TEXT,
-    activo BOOLEAN DEFAULT true,
-    created_at TIMESTAMP DEFAULT now()
-);
-```
-
-#### `usuarios`
-```sql
+-- Usuarios del sistema
 CREATE TABLE usuarios (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     nombre TEXT NOT NULL,
@@ -50,10 +39,17 @@ CREATE TABLE usuarios (
     activo BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT now()
 );
-```
 
-#### `configuracion_sistema`
-```sql
+-- Asesores (información adicional)
+CREATE TABLE asesores (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    nombre TEXT NOT NULL,
+    email TEXT,
+    activo BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT now()
+);
+
+-- Configuración del sistema
 CREATE TABLE configuracion_sistema (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     clave TEXT NOT NULL UNIQUE,
@@ -61,10 +57,8 @@ CREATE TABLE configuracion_sistema (
     descripcion TEXT,
     updated_at TIMESTAMP DEFAULT now()
 );
-```
 
-#### `historial_calculos`
-```sql
+-- Historial de cálculos
 CREATE TABLE historial_calculos (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     asesor TEXT NOT NULL,
@@ -74,15 +68,15 @@ CREATE TABLE historial_calculos (
 );
 ```
 
-## ⚙️ CONFIGURACIÓN DEL SISTEMA
+## CONFIGURACIÓN DEL SISTEMA
 
-### Estructura de configuración en `configuracion_sistema`:
+### Estructura CONFIG_DEFAULT:
 
 ```javascript
 CONFIG_DEFAULT = {
     base: 2500000,
     
-    // Configuración de bonos
+    // Montos de bonos por nivel
     pagos: {
         montoInterno: [1000000, 800000, 600000, 400000, 200000],
         montoExterno: [1500000, 1200000, 900000, 600000, 300000],
@@ -110,7 +104,7 @@ CONFIG_DEFAULT = {
         nombres: ["Líder Elite", "Líder Oro", "Líder Plata", "Líder Bronce", "Líder Inicial"]
     },
     
-    // Sistema de multiplicadores configurables
+    // Multiplicadores configurables
     multiplicadores: {
         conversion: {
             nombre: "Tasa de Conversión",
@@ -170,7 +164,7 @@ CONFIG_DEFAULT = {
         }
     },
     
-    // Nombres personalizables de bonos
+    // Nombres personalizables
     nombres: {
         base: "Salario Base",
         carrera: "Bono de Carrera",
@@ -181,7 +175,7 @@ CONFIG_DEFAULT = {
         equipo: "Bono de Equipo"
     },
     
-    // Configuración de llaves (switches)
+    // Switches del sistema
     llaves: {
         llave6Desembolsos: true,
         llaveSemanal: true
@@ -189,19 +183,20 @@ CONFIG_DEFAULT = {
 };
 ```
 
-## 🔧 FUNCIONES PRINCIPALES
+## FUNCIONES PRINCIPALES
 
-### Funciones de base de datos (app.js):
+### Base de datos (app.js):
 
 ```javascript
-// Conexión y configuración
+// Obtener configuración
 async function obtenerConfiguracion(clave = null) {
     const { data, error } = await supabase
         .from('configuracion_sistema')
         .select('*');
-    // Retorna configuración completa o específica
+    return procesarConfiguracion(data, clave);
 }
 
+// Actualizar configuración
 async function actualizarConfiguracion(clave, valor) {
     const { data, error } = await supabase
         .from('configuracion_sistema')
@@ -212,7 +207,7 @@ async function actualizarConfiguracion(clave, valor) {
         });
 }
 
-// Gestión de usuarios
+// Validar usuario
 async function validarAsesor(nombre, password) {
     const { data, error } = await supabase
         .from('usuarios')
@@ -223,15 +218,7 @@ async function validarAsesor(nombre, password) {
     return data && data.length > 0;
 }
 
-async function obtenerAsesores() {
-    const { data, error } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('activo', true);
-    return data || [];
-}
-
-// Historial de cálculos
+// Guardar cálculo
 async function guardarCalculoEnHistorial(asesor, datosCalculo) {
     const { data, error } = await supabase
         .from('historial_calculos')
@@ -243,9 +230,40 @@ async function guardarCalculoEnHistorial(asesor, datosCalculo) {
 }
 ```
 
-### Funciones de cálculo (app.js):
+### Cálculo de comisiones (app.js):
 
 ```javascript
+// Función principal de cálculo
+function updateCalculations() {
+    const valores = obtenerValoresInputs();
+    
+    // Calcular bonos base
+    const bonos = {
+        base: config.base,
+        carrera: calcularBonoCarrera(valores.carreraActual, valores.carreraAnterior),
+        interno: calcularBonoInterno(valores.interno),
+        externo: calcularBonoExterno(valores.externo),
+        recuperado: calcularBonoRecuperado(valores.recuperado),
+        cantidad: calcularBonoCantidad(valores.cantidad),
+        equipo: calcularBonoEquipo(valores.equipo)
+    };
+    
+    // Calcular multiplicadores
+    const multiplicadores = {
+        conversion: calcularMultiplicador('conversion', valores.conversion),
+        empatia: calcularMultiplicador('empatia', valores.empatia),
+        proceso: calcularMultiplicador('proceso', valores.proceso),
+        mora: calcularMultiplicador('mora', valores.mora)
+    };
+    
+    // Calcular totales
+    const subtotal = Object.values(bonos).reduce((a, b) => a + b, 0);
+    const multiplicadorTotal = Object.values(multiplicadores).reduce((a, b) => a * b, 1);
+    const total = subtotal * multiplicadorTotal;
+    
+    actualizarInterfaz(bonos, multiplicadores, subtotal, total);
+}
+
 // Cálculo de multiplicadores
 function calcularMultiplicador(tipo, valor) {
     const multiplicador = config.multiplicadores[tipo];
@@ -270,75 +288,30 @@ function calcularMultiplicador(tipo, valor) {
     return 1;
 }
 
-// Cálculo de bonos por nivel
+// Cálculo de bono por nivel
 function calcularBonoPorNivel(valor, metas, montos) {
     for (let i = 0; i < metas.length; i++) {
         if (valor >= metas[i]) {
-            return {
-                nivel: i,
-                bono: montos[i],
-                meta: metas[i]
-            };
+            return { nivel: i, bono: montos[i], meta: metas[i] };
         }
     }
     return { nivel: -1, bono: 0, meta: 0 };
 }
-
-// Cálculo principal
-function updateCalculations() {
-    // Obtener valores de inputs
-    const valores = obtenerValoresInputs();
-    
-    // Calcular bonos individuales
-    const bonos = {
-        base: config.base,
-        carrera: calcularBonoCarrera(valores.carreraActual, valores.carreraAnterior),
-        interno: calcularBonoInterno(valores.interno),
-        externo: calcularBonoExterno(valores.externo),
-        recuperado: calcularBonoRecuperado(valores.recuperado),
-        cantidad: calcularBonoCantidad(valores.cantidad),
-        equipo: calcularBonoEquipo(valores.equipo)
-    };
-    
-    // Calcular multiplicadores
-    const multiplicadores = {
-        conversion: calcularMultiplicador('conversion', valores.conversion),
-        empatia: calcularMultiplicador('empatia', valores.empatia),
-        proceso: calcularMultiplicador('proceso', valores.proceso),
-        mora: calcularMultiplicador('mora', valores.mora)
-    };
-    
-    // Calcular totales
-    const subtotal = Object.values(bonos).reduce((a, b) => a + b, 0);
-    const multiplicadorTotal = Object.values(multiplicadores).reduce((a, b) => a * b, 1);
-    const total = subtotal * multiplicadorTotal;
-    
-    // Actualizar interfaz
-    actualizarInterfaz(bonos, multiplicadores, subtotal, total);
-}
 ```
 
-### Funciones de administración (admin.js):
+### Administración (admin.js):
 
 ```javascript
 // Gestión de asesores
 async function agregarAsesor(nombre, password, email) {
     const { data, error } = await supabase
         .from('usuarios')
-        .insert({
-            nombre: nombre,
-            password: password,
-            activo: true
-        });
+        .insert({ nombre, password, activo: true });
     
     if (!error && email) {
         await supabase
             .from('asesores')
-            .insert({
-                nombre: nombre,
-                email: email,
-                activo: true
-            });
+            .insert({ nombre, email, activo: true });
     }
 }
 
@@ -347,19 +320,9 @@ async function eliminarAsesor(nombre) {
         .from('usuarios')
         .update({ activo: false })
         .eq('nombre', nombre);
-        
-    await supabase
-        .from('asesores')
-        .update({ activo: false })
-        .eq('nombre', nombre);
 }
 
 // Gestión de multiplicadores
-function guardarMultiplicadores() {
-    const multiplicadores = recopilarMultiplicadores();
-    actualizarConfiguracion('multiplicadores', multiplicadores);
-}
-
 function recopilarMultiplicadores() {
     const multiplicadores = {};
     
@@ -378,42 +341,38 @@ function recopilarMultiplicadores() {
 }
 ```
 
-## 🎯 LÓGICA DE NEGOCIO
+## LÓGICA DE NEGOCIO
 
-### Flujo de cálculo de comisiones:
-
-1. **Entrada de datos**: Usuario ingresa valores en formulario
-2. **Validación**: Verificar que todos los campos sean válidos
-3. **Cálculo de bonos base**: Aplicar metas y obtener bonos individuales
-4. **Cálculo de multiplicadores**: Evaluar cada multiplicador según su configuración
-5. **Aplicación de multiplicadores**: Subtotal × multiplicador total
-6. **Actualización de interfaz**: Mostrar resultados y barras de progreso
-7. **Guardado en historial**: Registrar cálculo en base de datos
+### Flujo de cálculo:
+1. Usuario ingresa datos → Validación
+2. Cálculo de bonos base según metas
+3. Cálculo de multiplicadores según rangos
+4. Aplicación: subtotal × multiplicador_total
+5. Actualización de interfaz y guardado en historial
 
 ### Algoritmo de multiplicadores:
-
 ```javascript
-// Pseudocódigo para multiplicadores
+// Pseudocódigo
 for cada multiplicador in config.multiplicadores:
-    valor_usuario = obtenerValorInput(multiplicador.tipo)
+    valor = input_usuario[multiplicador.tipo]
     
     if multiplicador.invertido:
-        // Para mora: menor es mejor
+        // Mora: menor valor = mejor multiplicador
         for rango in multiplicador.rangos:
-            if valor_usuario <= rango.min + tolerancia:
+            if valor <= rango.min + tolerancia:
                 return rango.mult
     else:
-        // Para otros: mayor es mejor
-        for rango in multiplicador.rangos (ordenados desc):
-            if valor_usuario >= rango.min:
+        // Otros: mayor valor = mejor multiplicador
+        for rango in multiplicador.rangos (desc):
+            if valor >= rango.min:
                 return rango.mult
     
-    return 1.0  // multiplicador neutro
+    return 1.0
 ```
 
-## 👥 USUARIOS DEL SISTEMA
+## USUARIOS
 
-### Asesores configurados:
+### Asesores:
 ```javascript
 const ASESORES = [
     { nombre: "Base", password: "20" },
@@ -432,98 +391,60 @@ const ASESORES = [
 ```javascript
 const ADMIN = {
     usuario: "Administrador",
-    password: "gtadmin",
-    permisos: ["gestionar_asesores", "configurar_sistema", "ver_reportes"]
+    password: "gtadmin"
 };
 ```
 
-## 🔄 FLUJO DE DATOS
+## ESTRUCTURA DE DATOS
 
-```
-INPUT (Usuario) → VALIDACIÓN → CÁLCULO → MULTIPLICADORES → RESULTADO → HISTORIAL
-     ↓              ↓           ↓           ↓            ↓         ↓
-   Formulario   Validar JS   Bonos base   Aplicar mult.  Mostrar   Supabase
-```
-
-## 📊 ESTRUCTURA DE DATOS
-
-### Objeto de cálculo completo:
+### Objeto de cálculo:
 ```javascript
-const calculoCompleto = {
-    asesor: "Alejandra",
-    fecha: "2025-01-15T10:30:00Z",
+const calculo = {
+    asesor: "string",
+    fecha: "timestamp",
     inputs: {
-        carreraActual: 8500000,
-        carreraAnterior: 7000000,
-        interno: 125,
-        externo: 45,
-        recuperado: 22,
-        cantidad: 28,
-        equipo: 55000000,
-        conversion: 14,
-        empatia: 87,
-        proceso: 92,
-        mora: 4
+        carreraActual: number,
+        carreraAnterior: number,
+        interno: number,
+        externo: number,
+        recuperado: number,
+        cantidad: number,
+        equipo: number,
+        conversion: number,
+        empatia: number,
+        proceso: number,
+        mora: number
     },
     bonos: {
-        base: 2500000,
-        carrera: 2000000,
-        interno: 1000000,
-        externo: 1500000,
-        recuperado: 2000000,
-        cantidad: 500000,
-        equipo: 3000000
+        base: number,
+        carrera: number,
+        interno: number,
+        externo: number,
+        recuperado: number,
+        cantidad: number,
+        equipo: number
     },
     multiplicadores: {
-        conversion: 1.0,
-        empatia: 1.0,
-        proceso: 1.0,
-        mora: 1.0
+        conversion: number,
+        empatia: number,
+        proceso: number,
+        mora: number
     },
-    subtotal: 12500000,
-    multiplicadorTotal: 1.0,
-    total: 12500000
+    subtotal: number,
+    multiplicadorTotal: number,
+    total: number
 };
 ```
 
-## 🚀 DESPLIEGUE
+## DESPLIEGUE
 
-### Configuración para hosting estático:
-- **Archivos**: Solo HTML, CSS, JS (sin servidor)
-- **Base de datos**: Supabase (configurar RLS)
-- **Variables**: URL y Key de Supabase en app.js
-- **Hosting**: Render, Netlify, Vercel, GitHub Pages
+### Configuración:
+- Archivos estáticos (HTML/CSS/JS)
+- Variables de Supabase en app.js
+- Hosting: Render/Netlify/Vercel/GitHub Pages
 
-### Variables de entorno necesarias:
+### Variables necesarias:
 ```javascript
-const supabaseUrl = 'https://tu-proyecto.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-```
-
-## 🔧 MANTENIMIENTO
-
-### Tareas rutinarias:
-- Backup de configuración (exportar JSON)
-- Revisión de logs de errores
-- Actualización de asesores activos
-- Optimización de multiplicadores según performance
-
-### Monitoreo:
-- Errores en consola del navegador
-- Fallos de conexión a Supabase
-- Cálculos incorrectos
-- Performance de carga
-
-## 📝 NOTAS TÉCNICAS
-
-- **Arquitectura**: SPA (Single Page Application)
-- **Persistencia**: Supabase (PostgreSQL)
-- **Autenticación**: Custom con validación en tabla usuarios
-- **Reportes**: jsPDF para generación de PDF
-- **Responsive**: CSS Grid y Flexbox
-- **Compatibilidad**: Navegadores modernos (ES6+)
-
----
-
-**Sistema de Comisiones SERSA v2.1**  
-**Documentación técnica completa para desarrollo e integración con IA** 
+const supabaseUrl = 'https://proyecto.supabase.co';
+const supabaseKey = 'clave_publica_supabase';
+``` 
