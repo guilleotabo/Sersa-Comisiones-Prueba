@@ -13,7 +13,7 @@ let isCalculating = false;
 
 // Configuración por defecto del sistema (como respaldo)
 const CONFIG_DEFAULT = {
-    base: 3000000,
+    base: 9000000,
     niveles: ["Capilla", "Junior", "Senior A", "Senior B", "Máster", "Genio"],
     iconos: ["⛪", "🌱", "💼", "🌟", "👑", "🏆"],
     metas: {
