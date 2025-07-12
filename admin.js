@@ -125,9 +125,14 @@ async function abrirModalAsesor(tipo, asesorId = null) {
                 .from('users')
                 .select('*')
                 .eq('id', asesorId)
-                .single();
+                .maybeSingle();
             
             if (error) throw error;
+            
+            if (!usuario) {
+                alert('Usuario no encontrado');
+                return;
+            }
             
             document.getElementById('modal-nombre').value = usuario.nombre;
             document.getElementById('modal-email').value = usuario.email || '';
@@ -245,7 +250,9 @@ async function cargarConfiguracionGeneral() {
             .eq('tipo', 'global')
             .is('user_id', null)
             .eq('activo', true)
-            .single();
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
         
         if (error || !configData || !configData.config) {
             // Usar configuración por defecto
@@ -498,14 +505,21 @@ async function cargarConfiguracionAsesor() {
     }
     
     try {
-        // EXACTAMENTE IGUAL QUE USUARIOS: Buscar configuración específica
+        // CORREGIDO: Buscar configuración específica tomando la más reciente
         const { data: configData, error } = await supabase
             .from('settings')
             .select('*')
             .eq('tipo', 'user_specific')
             .eq('user_id', asesorId)
             .eq('activo', true)
-            .single();
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+        
+        if (error) {
+            console.error('Error en consulta:', error);
+            throw error;
+        }
         
         let config;
         if (configData && configData.config) {
@@ -525,7 +539,10 @@ async function cargarConfiguracionAsesor() {
                     activo: true
                 });
             
-            if (insertError) throw insertError;
+            if (insertError) {
+                console.error('Error creando configuración:', insertError);
+                throw insertError;
+            }
             console.log('🆕 Configuración inicial creada para asesor:', asesorId);
         }
         
@@ -674,7 +691,7 @@ async function guardarConfiguracionAsesor() {
 // Variable para rastrear el asesor actual
 let asesorActualEnEdicion = null;
 
-// Nueva función para cambiar de asesor con auto-guardado
+// Función simplificada para cambiar de asesor - SIN auto-guardado
 async function cambiarAsesor() {
     const nuevoAsesorId = document.getElementById('asesor-selector').value;
     
@@ -685,37 +702,18 @@ async function cambiarAsesor() {
         return;
     }
     
-    // Si había un asesor anterior y hay cambios, guardar automáticamente
+    // Si había un asesor anterior, preguntar si quiere cambiar
     if (asesorActualEnEdicion && asesorActualEnEdicion !== nuevoAsesorId) {
-        console.log(`🔄 Cambiando de ${asesorActualEnEdicion} a ${nuevoAsesorId}`);
+        const confirmar = confirm('¿Deseas cambiar de asesor?\n\n⚠️ IMPORTANTE: Si tienes cambios sin guardar, se perderán.\n\nUsa el botón "Guardar Todo" antes de cambiar si necesitas conservar los cambios.');
         
-        // Mostrar indicador de guardado
-        const btnDescargar = document.getElementById('btn-descargar-config');
-        if (btnDescargar) {
-            const textoOriginal = btnDescargar.innerHTML;
-            btnDescargar.innerHTML = '⏳ Guardando anterior...';
-            btnDescargar.disabled = true;
-            
-            try {
-                // Simular el guardado (guardar datos del asesor anterior)
-                const asesorAnteriorId = asesorActualEnEdicion;
-                console.log(`💾 Guardando configuración del asesor: ${asesorAnteriorId}`);
-                
-                // Llamar a la función de guardado con el ID del asesor anterior
-                await guardarConfiguracionEspecifica(asesorAnteriorId, true);
-                console.log('✅ Configuración anterior guardada automáticamente');
-            } catch (error) {
-                console.error('❌ Error guardando configuración anterior:', error);
-                // Continuar aunque falle el guardado
-            }
-            
-            // Restaurar botón
-            btnDescargar.innerHTML = textoOriginal;
-            btnDescargar.disabled = false;
+        if (!confirmar) {
+            // Restaurar el selector al asesor anterior
+            document.getElementById('asesor-selector').value = asesorActualEnEdicion;
+            return;
         }
     }
     
-    // Cargar configuración del nuevo asesor
+    // Actualizar el asesor actual y cargar su configuración
     asesorActualEnEdicion = nuevoAsesorId;
     await cargarConfiguracionAsesor();
 }
@@ -751,7 +749,9 @@ async function descargarConfiguracion() {
             .eq('tipo', 'user_specific')
             .eq('user_id', asesorId)
             .eq('activo', true)
-            .single();
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
         
         let config;
         if (configAsesor && configAsesor.config) {
@@ -764,7 +764,9 @@ async function descargarConfiguracion() {
                 .eq('tipo', 'global')
                 .is('user_id', null)
                 .eq('activo', true)
-                .single();
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
             
             config = configGlobal?.config || CONFIG_DEFAULT;
         }
@@ -774,7 +776,7 @@ async function descargarConfiguracion() {
             .from('users')
             .select('nombre, codigo')
             .eq('id', asesorId)
-            .single();
+            .maybeSingle();
         
         const nombreAsesor = asesor?.nombre || 'Asesor';
         const codigoAsesor = asesor?.codigo || `ASR${asesorId}`;
@@ -876,6 +878,9 @@ async function cargarMultiplicadoresAsesorUnificado(asesorId, config) {
     
     console.log('🔍 Debug - multiplicadores cargados:', multiplicadores);
     
+    // Asegurar que window.multiplicadoresActuales se actualice
+    window.multiplicadoresActuales = multiplicadores;
+    
     let html = `
         <div class="multiplicadores-header">
             <h4>📊 Configuración de Multiplicadores</h4>
@@ -924,8 +929,10 @@ async function cargarMultiplicadoresAsesorUnificado(asesorId, config) {
     
     container.innerHTML = html;
     
-    // Guardar referencia para uso posterior
+    // Guardar referencia para uso posterior (confirmación)
     window.multiplicadoresActuales = multiplicadores;
+    
+    console.log('🎯 Multiplicadores cargados en interfaz y guardados en window.multiplicadoresActuales');
 }
 
 // Crear HTML para un rango individual
@@ -1006,30 +1013,18 @@ function inicializarNavegacionInterna() {
     });
 }
 
-// AUTO-GUARDADO SIMPLE
-async function guardarConfiguracionEspecifica(asesorId, silencioso = false) {
-    if (!asesorId) return;
-    
-    try {
-        // Usar la misma función que el guardado manual
-        await guardarConfiguracionCompleta(true);
-        console.log('💾 [AUTO-GUARDADO] Configuración guardada para asesor:', asesorId);
-    } catch (error) {
-        console.error('❌ [AUTO-GUARDADO] Error:', error);
-        throw error;
-    }
-}
+// Función eliminada - ya no se necesita auto-guardado
 
-// GUARDAR CONFIGURACIÓN - REPLICANDO PATRÓN DE USUARIOS QUE FUNCIONA
-async function guardarConfiguracionCompleta(silencioso = false) {
+// GUARDAR CONFIGURACIÓN - VERSIÓN SIMPLIFICADA
+async function guardarConfiguracionCompleta() {
     const asesorId = document.getElementById('asesor-selector').value;
     
     if (!asesorId) {
-        if (!silencioso) alert('Selecciona un asesor primero');
+        alert('Selecciona un asesor primero');
         return;
     }
     
-    if (!silencioso && !confirm('¿Estás seguro de guardar toda la configuración de este asesor?')) return;
+    if (!confirm('¿Estás seguro de guardar toda la configuración de este asesor?')) return;
     
     const btnGuardarFloating = document.querySelector('.btn-floating');
     
@@ -1040,27 +1035,29 @@ async function guardarConfiguracionCompleta(silencioso = false) {
     }
     
     try {
-        // EXACTAMENTE IGUAL QUE USUARIOS: Recopilar datos del formulario
+        // Recopilar datos del formulario
         const configData = {
             config: recopilarConfiguracionDelFormulario()
         };
         
-        // EXACTAMENTE IGUAL QUE USUARIOS: Actualizar en BD
+        // Actualizar en BD usando upsert para evitar duplicados
         const { error } = await supabase
             .from('settings')
-            .update(configData)
-            .eq('tipo', 'user_specific')
-            .eq('user_id', asesorId)
-            .eq('activo', true);
+            .upsert({ 
+                tipo: 'user_specific',
+                user_id: asesorId,
+                config: configData.config,
+                activo: true 
+            });
         
         if (error) throw error;
         
         console.log('✅ Configuración actualizada exitosamente para asesor:', asesorId);
-        if (!silencioso) alert('✅ Configuración guardada exitosamente en base de datos');
+        alert('✅ Configuración guardada exitosamente en base de datos');
         
     } catch (error) {
         console.error('❌ Error guardando configuración:', error);
-        if (!silencioso) alert('❌ Error guardando configuración');
+        alert('❌ Error guardando configuración');
         throw error;
     } finally {
         // Rehabilitar botón
@@ -1107,11 +1104,13 @@ function aplicarConfiguracionAFormulario(config) {
     document.getElementById('config-asesor-nombre-carrera').value = config.nombres_bonos.carrera;
     document.getElementById('config-asesor-nombre-equipo').value = config.nombres_bonos.equipo;
     
-    // Multiplicadores
+    // Multiplicadores - CORREGIDO
     cargarMultiplicadoresAsesorUnificado(null, config);
+    
+    console.log('✅ Configuración aplicada completamente, incluyendo multiplicadores');
 }
 
-// RECOPILAR CONFIGURACIÓN DEL FORMULARIO - EXACTAMENTE IGUAL QUE USUARIOS
+// RECOPILAR CONFIGURACIÓN DEL FORMULARIO - INCLUYENDO MULTIPLICADORES
 function recopilarConfiguracionDelFormulario() {
     const config = {
         base: parseInt(document.getElementById('config-asesor-base').value.replace(/\./g, '')) || 3000000,
@@ -1131,7 +1130,7 @@ function recopilarConfiguracionDelFormulario() {
             equipo: []
         },
         nombres_bonos: {},
-        multiplicadores: window.multiplicadoresActuales || CONFIG_DEFAULT.multiplicadores
+        multiplicadores: recopilarMultiplicadores()
     };
     
     // Niveles
@@ -1168,81 +1167,55 @@ function recopilarConfiguracionDelFormulario() {
     return config;
 }
 
-// Recopilar toda la configuración del formulario - VERSIÓN LIMPIA
-function recopilarConfiguracionDelFormulario() {
-    const config = {
-        base: parseInt(document.getElementById('config-asesor-base').value.replace(/\./g, '')) || 3000000,
-        niveles: [],
-        metas: {
-            montoInterno: [],
-            montoExterno: [],
-            montoRecuperado: [],
-            cantidad: []
-        },
-        pagos: {
-            carrera: [],
-            montoInterno: [],
-            montoExterno: [],
-            montoRecuperado: [],
-            cantidad: [],
-            equipo: []
-        },
-        nombres_bonos: {},
-        multiplicadores: recopilarMultiplicadores()
+// Función duplicada eliminada - usar la versión que viene después
+
+// Recopilar multiplicadores del formulario - IMPLEMENTACIÓN CORREGIDA
+function recopilarMultiplicadores() {
+    // Primero intentar recopilar desde la interfaz HTML
+    const multiplicadoresRecopilados = {
+        conversion: [],
+        empatia: [],
+        proceso: [],
+        mora: []
     };
     
-    // Niveles
-    for (let i = 0; i < 6; i++) {
-        const nivel = document.getElementById(`config-asesor-nivel-${i}`).value || CONFIG_DEFAULT.niveles[i];
-        config.niveles.push(nivel);
-    }
-    
-    // Metas y pagos
-    for (let i = 0; i < 6; i++) {
-        // Metas
-        config.metas.montoInterno[i] = parseInt(document.getElementById(`config-asesor-meta-montoInterno-${i}`).value.replace(/\./g, '')) || 0;
-        config.metas.montoExterno[i] = parseInt(document.getElementById(`config-asesor-meta-montoExterno-${i}`).value.replace(/\./g, '')) || 0;
-        config.metas.montoRecuperado[i] = parseInt(document.getElementById(`config-asesor-meta-montoRecuperado-${i}`).value.replace(/\./g, '')) || 0;
-        config.metas.cantidad[i] = parseInt(document.getElementById(`config-asesor-meta-cantidad-${i}`).value) || 0;
-        
-        // Pagos
-        config.pagos.carrera[i] = parseInt(document.getElementById(`config-asesor-pago-carrera-${i}`).value.replace(/\./g, '')) || 0;
-        config.pagos.montoInterno[i] = parseInt(document.getElementById(`config-asesor-pago-montoInterno-${i}`).value.replace(/\./g, '')) || 0;
-        config.pagos.montoExterno[i] = parseInt(document.getElementById(`config-asesor-pago-montoExterno-${i}`).value.replace(/\./g, '')) || 0;
-        config.pagos.montoRecuperado[i] = parseInt(document.getElementById(`config-asesor-pago-montoRecuperado-${i}`).value.replace(/\./g, '')) || 0;
-        config.pagos.cantidad[i] = parseInt(document.getElementById(`config-asesor-pago-cantidad-${i}`).value.replace(/\./g, '')) || 0;
-        config.pagos.equipo[i] = parseInt(document.getElementById(`config-asesor-pago-equipo-${i}`).value.replace(/\./g, '')) || 0;
-    }
-    
-    // Nombres de bonos
-    ['interno', 'externo', 'cantidad', 'recuperados', 'carrera', 'equipo'].forEach(tipo => {
-        const input = document.getElementById(`config-asesor-nombre-${tipo}`);
-        if (input && input.value) config.nombres_bonos[tipo] = input.value;
+    // Recopilar desde los inputs HTML de cada multiplicador
+    Object.keys(multiplicadoresRecopilados).forEach(multKey => {
+        const container = document.getElementById(`rangos-${multKey}`);
+        if (container) {
+            const rangoItems = container.querySelectorAll('.rango-item-nueva');
+            rangoItems.forEach(item => {
+                const minInput = item.querySelector('[data-field="min"]');
+                const textInput = item.querySelector('[data-field="text"]');
+                const multInput = item.querySelector('[data-field="mult"]');
+                
+                if (minInput && textInput && multInput) {
+                    multiplicadoresRecopilados[multKey].push({
+                        min: parseInt(minInput.value) || 0,
+                        text: textInput.value || '',
+                        mult: parseFloat(multInput.value) || 1.0
+                    });
+                }
+            });
+            
+            // Ordenar de mayor a menor valor mínimo para lógica correcta
+            multiplicadoresRecopilados[multKey].sort((a, b) => b.min - a.min);
+        }
     });
     
-    return config;
-}
-
-// Recopilar multiplicadores del formulario - NUEVA IMPLEMENTACIÓN
-function recopilarMultiplicadores() {
-    // Usar los multiplicadores actuales que se han estado editando
-    if (window.multiplicadoresActuales) {
-        // Ordenar rangos por valor mínimo (de mayor a menor para que funcione la lógica)
-        const multiplicadoresOrdenados = {};
-        
-        Object.keys(window.multiplicadoresActuales).forEach(key => {
-            multiplicadoresOrdenados[key] = [...window.multiplicadoresActuales[key]];
-            
-            // Ordenar de mayor a menor valor mínimo
-            multiplicadoresOrdenados[key].sort((a, b) => b.min - a.min);
-        });
-        
-        console.log('🔍 Multiplicadores recopilados:', multiplicadoresOrdenados);
-        return multiplicadoresOrdenados;
-    }
+    // Si no hay datos en HTML, usar window.multiplicadoresActuales
+    const hayDatos = Object.values(multiplicadoresRecopilados).some(arr => arr.length > 0);
     
-    // Fallback: usar CONFIG_DEFAULT
-    return CONFIG_DEFAULT.multiplicadores;
+    if (hayDatos) {
+        console.log('🔍 Multiplicadores recopilados desde HTML:', multiplicadoresRecopilados);
+        return multiplicadoresRecopilados;
+    } else if (window.multiplicadoresActuales) {
+        console.log('🔍 Multiplicadores desde window.multiplicadoresActuales:', window.multiplicadoresActuales);
+        return window.multiplicadoresActuales;
+    } else {
+        console.log('🔍 Multiplicadores desde CONFIG_DEFAULT');
+        return CONFIG_DEFAULT.multiplicadores;
+    }
 }
 
 // Agregar rango a multiplicador - NUEVA IMPLEMENTACIÓN
@@ -1350,68 +1323,7 @@ function recargarMultiplicador(multKey) {
 
 
 // ===========================================
-// SCRIPT SIMPLE PARA APLICAR MULTIPLICADORES
+// FUNCIONES DE UTILIDAD PARA MULTIPLICADORES
 // ===========================================
 
-// Función de diagnóstico eliminada - no necesaria para usuarios finales
-
-// Script simple para aplicar multiplicadores por defecto a todos los asesores
-// Función eliminada - no necesaria para usuarios finales
-async function aplicarMultiplicadoresPorDefectoEliminada() {
-    try {
-        // Obtener todos los asesores
-        const { data: asesores, error: errorAsesores } = await supabase
-            .from('users')
-            .select('id, nombre')
-            .eq('rol', 'asesor');
-        
-        if (errorAsesores) {
-            console.error('Error obteniendo asesores:', errorAsesores);
-            return;
-        }
-        
-        let procesados = 0;
-        
-        for (const asesor of asesores) {
-            // Obtener configuración actual
-            const { data: configActual, error: errorConfig } = await supabase
-                .from('settings')
-                .select('config')
-                .eq('tipo', 'user_specific')
-                .eq('user_id', asesor.id)
-                .eq('activo', true)
-                .single();
-            
-            let config = configActual?.config || CONFIG_DEFAULT;
-            
-            // Si no tiene multiplicadores, agregar los por defecto
-            if (!config.multiplicadores) {
-                config.multiplicadores = CONFIG_DEFAULT.multiplicadores;
-                
-                // Guardar configuración actualizada
-                const { error: errorGuardar } = await supabase
-                    .from('settings')
-                    .upsert({
-                        tipo: 'user_specific',
-                        user_id: asesor.id,
-                        config: config,
-                        activo: true
-                    });
-                
-                if (!errorGuardar) {
-                    procesados++;
-                    console.log(`✅ Multiplicadores aplicados a ${asesor.nombre}`);
-                }
-            }
-        }
-        
-        if (procesados > 0) {
-            console.log(`✅ Script completado: ${procesados} asesores actualizados`);
-        } else {
-            console.log('ℹ️ Todos los asesores ya tienen multiplicadores configurados');
-        }
-        
-    } catch (error) {
-        console.error('❌ Error ejecutando script:', error);
-    }
-}
+// Funciones de diagnóstico eliminadas - interfaz simplificada para usuarios finales

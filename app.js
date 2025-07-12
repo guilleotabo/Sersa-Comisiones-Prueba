@@ -161,9 +161,14 @@ async function verificarContrasena() {
             .eq('nombre', usuario)
             .eq('activo', true)
             .in('rol', ['asesor', 'admin'])
-            .single();
+            .maybeSingle();
         
         if (error) throw error;
+        
+        if (!data) {
+            mostrarError('Usuario no encontrado o inactivo');
+            return;
+        }
         
         if (data.password_hash === password) {
             mostrarExito(`¡Bienvenido ${usuario}!`);
@@ -211,7 +216,9 @@ async function cargarConfiguracion(userId = null) {
                 .eq('tipo', 'user_specific')
                 .eq('user_id', userId)
                 .eq('activo', true)
-                .single();
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
             
             if (configUsuario && configUsuario.config) {
                 configuracionActual = configUsuario.config;
@@ -227,7 +234,9 @@ async function cargarConfiguracion(userId = null) {
             .eq('tipo', 'global')
             .is('user_id', null)
             .eq('activo', true)
-            .single();
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
         
         if (configGlobal && configGlobal.config) {
             configuracionActual = configGlobal.config;
