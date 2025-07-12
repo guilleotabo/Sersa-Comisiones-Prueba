@@ -1,317 +1,529 @@
-# 🧮 Sistema de Comisiones SERSA v2.1
+# 🧮 Sistema de Comisiones SERSA - Documentación Técnica Completa
 
-Sistema de cálculo de comisiones para asesores comerciales, completamente renovado con base de datos Supabase, multiplicadores configurables y arquitectura simplificada.
+## 📋 RESUMEN TÉCNICO
 
-## 🚀 Características Principales
+Sistema de cálculo de comisiones para asesores comerciales con arquitectura simplificada, base de datos Supabase y multiplicadores configurables dinámicos.
 
-- ✅ **Sistema Unificado**: Una sola aplicación para todos los asesores
-- ✅ **Base de Datos Online**: Integración completa con Supabase (PostgreSQL)
-- ✅ **Panel de Administración**: Gestión completa de asesores y configuraciones
-- ✅ **Calculadora Avanzada**: Cálculo automático de bonos con multiplicadores
-- ✅ **Multiplicadores Configurables**: Sistema flexible para personalizar multiplicadores
-- ✅ **Nombres Personalizables**: Cambiar nombres de bonos desde el admin
-- ✅ **Reportes en PDF**: Generación automática de reportes
-- ✅ **Responsive**: Diseño adaptable a móviles y escritorio
-- ✅ **Backup Automático**: Sincronización en tiempo real con la nube
-
-## 📁 Estructura del Proyecto (Arquitectura Unificada)
+## 🗂️ ESTRUCTURA DE ARCHIVOS
 
 ```
 Sersa-Comisiones-Prueba/
-├── 🏠 index.html                    # Página principal (Login + Calculadora)
-├── 🔧 admin.html                    # Panel de administración completo
-├── ⚙️ app.js                        # Lógica principal del sistema
-├── 🛠️ admin.js                      # Lógica del panel de administración
-├── 🎨 styles.css                    # Estilos principales
-├── 💎 bonos.css                     # Estilos específicos de bonos
-├── 📚 README.md                     # Documentación completa
-├── 🏗️ ARQUITECTURA.md               # Documentación técnica detallada
-└── 📊 estructura-multiplicadores.md # Especificación de multiplicadores configurables
+├── index.html                       # Página principal - Login + Calculadora
+├── admin.html                       # Panel de administración
+├── app.js                          # Lógica principal del sistema
+├── admin.js                        # Lógica del panel de administración
+├── styles.css                      # Estilos principales
+├── bonos.css                       # Estilos específicos de bonos
+├── README.md                       # Esta documentación técnica
+├── MANUAL-USUARIO.md               # Manual de uso para usuarios finales
+└── estructura-multiplicadores.md   # Especificación de multiplicadores
 ```
 
-## 🎯 Funcionalidades Principales
+## 🗄️ BASE DE DATOS (SUPABASE)
 
-### **Sistema Unificado**
-- Login único con selector de asesor
-- Calculadora integrada en la página principal
-- Configuraciones personalizadas por asesor
-- Historial de cálculos automático
-
-### **Calculadora de Comisiones Avanzada**
-- Cálculo automático de bonos por nivel
-- **Multiplicadores configurables dinámicos**:
-  - 🎯 **Tasa de Conversión**: Porcentaje de conversión de leads
-  - 💬 **Nivel de Empatía**: Satisfacción del cliente
-  - 📋 **Cumplimiento de Proceso**: Adherencia a procesos
-  - 💰 **Índice de Mora**: Control de mora en cartera
-- Barras de progreso visuales
-- Sugerencias de optimización automáticas
-- Generación de reportes PDF
-
-### **Panel de Administración Completo**
-- **Gestión de Asesores**: Agregar, editar, eliminar asesores
-- **Configuración del Sistema**: Cambiar todos los parámetros
-- **Personalización de Bonos**: Cambiar nombres y valores de bonos
-- **📊 Multiplicadores Configurables**: 
-  - Editor visual de rangos y multiplicadores
-  - Configuración de nombres, iconos y descripciones
-  - Plantillas predefinidas (Ventas, Servicios Financieros)
-  - Previsualización en tiempo real
-- **Reportes y Estadísticas**: Ver historial completo
-- **Respaldo de Datos**: Exportar/importar configuraciones
-
-### **Nuevas Características v2.1**
-- ✨ **Multiplicadores Totalmente Configurables**: Sistema flexible para personalizar todos los multiplicadores
-- ✨ **Editor Visual de Rangos**: Interfaz intuitiva para configurar rangos de multiplicadores
-- ✨ **Plantillas de Multiplicadores**: Configuraciones predefinidas para diferentes tipos de negocio
-- ✨ **Validación Automática**: Prevención de solapamientos y errores en configuración
-- ✨ **Previsualización en Tiempo Real**: Ver impacto de cambios antes de aplicar
-
-## 🔧 Instalación y Uso
-
-### 1. **Clonar el Repositorio**
-```bash
-git clone [URL_DEL_REPOSITORIO]
-cd Sersa-Comisiones-Prueba
+### Configuración de conexión:
+```javascript
+const supabaseUrl = 'https://tu-proyecto.supabase.co';
+const supabaseKey = 'tu-clave-publica';
+const supabase = createClient(supabaseUrl, supabaseKey);
 ```
 
-### 2. **Configurar Servidor Local**
-```bash
-# Opción 1: Python
-python -m http.server 8000
-
-# Opción 2: Node.js
-npx serve .
-
-# Opción 3: PHP
-php -S localhost:8000
-```
-
-### 3. **Acceder a la Aplicación**
-- **Página Principal**: `http://localhost:8000`
-- **Panel de Administración**: `http://localhost:8000/admin.html`
-
-## 🗄️ Base de Datos (Supabase)
-
-### Tablas Principales:
+### Tablas y esquemas:
 
 #### `asesores`
-- `id` (UUID) - Identificador único
-- `nombre` (TEXT) - Nombre del asesor
-- `email` (TEXT) - Email del asesor
-- `activo` (BOOLEAN) - Estado activo/inactivo
-- `created_at` (TIMESTAMP) - Fecha de creación
+```sql
+CREATE TABLE asesores (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    nombre TEXT NOT NULL,
+    email TEXT,
+    activo BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT now()
+);
+```
 
 #### `usuarios`
-- `id` (UUID) - Identificador único
-- `nombre` (TEXT) - Nombre del asesor
-- `password` (TEXT) - Contraseña del asesor
-- `activo` (BOOLEAN) - Estado activo/inactivo
-- `created_at` (TIMESTAMP) - Fecha de creación
+```sql
+CREATE TABLE usuarios (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    nombre TEXT NOT NULL,
+    password TEXT NOT NULL,
+    activo BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT now()
+);
+```
 
 #### `configuracion_sistema`
-- `id` (UUID) - Identificador único
-- `clave` (TEXT) - Nombre de la configuración
-- `valor` (JSONB) - Valor de la configuración (incluye multiplicadores)
-- `descripcion` (TEXT) - Descripción de la configuración
-- `updated_at` (TIMESTAMP) - Última actualización
+```sql
+CREATE TABLE configuracion_sistema (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    clave TEXT NOT NULL UNIQUE,
+    valor JSONB NOT NULL,
+    descripcion TEXT,
+    updated_at TIMESTAMP DEFAULT now()
+);
+```
 
 #### `historial_calculos`
-- `id` (UUID) - Identificador único
-- `asesor` (TEXT) - Nombre del asesor
-- `fecha` (TIMESTAMP) - Fecha del cálculo
-- `datos_calculo` (JSONB) - Datos completos del cálculo
-- `resultado` (JSONB) - Resultado del cálculo
+```sql
+CREATE TABLE historial_calculos (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    asesor TEXT NOT NULL,
+    fecha TIMESTAMP DEFAULT now(),
+    datos_calculo JSONB NOT NULL,
+    resultado JSONB NOT NULL
+);
+```
 
-## 📊 Sistema de Multiplicadores Configurables
+## ⚙️ CONFIGURACIÓN DEL SISTEMA
 
-### **Estructura Flexible**
+### Estructura de configuración en `configuracion_sistema`:
+
 ```javascript
-multiplicadores: {
-    conversion: {
-        nombre: "Tasa de Conversión",
-        icono: "🎯",
-        unidad: "%",
-        descripcion: "Porcentaje de conversión de leads",
-        rangos: [
-            {min: 15, mult: 1.1, text: "15%+", color: "green"},
-            {min: 11, mult: 1.0, text: "11-14%", color: "blue"},
-            // ... más rangos configurables
-        ]
+CONFIG_DEFAULT = {
+    base: 2500000,
+    
+    // Configuración de bonos
+    pagos: {
+        montoInterno: [1000000, 800000, 600000, 400000, 200000],
+        montoExterno: [1500000, 1200000, 900000, 600000, 300000],
+        montoRecuperado: [2000000, 1600000, 1200000, 800000, 400000],
+        cantidad: [500000, 400000, 300000, 200000, 100000]
+    },
+    
+    // Metas por nivel
+    metasInterno: [120, 90, 60, 30, 15],
+    metasExterno: [40, 30, 20, 10, 5],
+    metasRecuperado: [20, 15, 10, 5, 2],
+    metasCantidad: [25, 20, 15, 10, 5],
+    
+    // Configuración de carrera
+    carrera: {
+        metas: [8000000, 6000000, 4000000, 2000000, 1000000],
+        bonos: [2000000, 1500000, 1000000, 500000, 250000],
+        nombres: ["Diamante", "Oro", "Plata", "Bronce", "Inicial"]
+    },
+    
+    // Configuración de equipo
+    equipo: {
+        metas: [50000000, 40000000, 30000000, 20000000, 10000000],
+        bonos: [3000000, 2400000, 1800000, 1200000, 600000],
+        nombres: ["Líder Elite", "Líder Oro", "Líder Plata", "Líder Bronce", "Líder Inicial"]
+    },
+    
+    // Sistema de multiplicadores configurables
+    multiplicadores: {
+        conversion: {
+            nombre: "Tasa de Conversión",
+            icono: "🎯",
+            unidad: "%",
+            descripcion: "Porcentaje de conversión de leads",
+            invertido: false,
+            rangos: [
+                {min: 15, mult: 1.1, text: "15%+", color: "green"},
+                {min: 11, mult: 1.0, text: "11-14%", color: "blue"},
+                {min: 9, mult: 0.8, text: "9-10%", color: "yellow"},
+                {min: 7, mult: 0.7, text: "7-8%", color: "orange"},
+                {min: 0, mult: 0.5, text: "<7%", color: "red"}
+            ]
+        },
+        empatia: {
+            nombre: "Nivel de Empatía",
+            icono: "💬",
+            unidad: "%",
+            descripcion: "Porcentaje de satisfacción del cliente",
+            invertido: false,
+            rangos: [
+                {min: 90, mult: 1.1, text: "90%+", color: "green"},
+                {min: 80, mult: 1.0, text: "80-89%", color: "blue"},
+                {min: 70, mult: 0.9, text: "70-79%", color: "yellow"},
+                {min: 60, mult: 0.8, text: "60-69%", color: "orange"},
+                {min: 0, mult: 0.7, text: "<60%", color: "red"}
+            ]
+        },
+        proceso: {
+            nombre: "Cumplimiento de Proceso",
+            icono: "📋",
+            unidad: "%",
+            descripcion: "Adherencia a procesos establecidos",
+            invertido: false,
+            rangos: [
+                {min: 95, mult: 1.1, text: "95%+", color: "green"},
+                {min: 85, mult: 1.0, text: "85-94%", color: "blue"},
+                {min: 75, mult: 0.9, text: "75-84%", color: "yellow"},
+                {min: 65, mult: 0.8, text: "65-74%", color: "orange"},
+                {min: 0, mult: 0.7, text: "<65%", color: "red"}
+            ]
+        },
+        mora: {
+            nombre: "Índice de Mora",
+            icono: "💰",
+            unidad: "%",
+            descripcion: "Porcentaje de mora en cartera",
+            invertido: true,
+            rangos: [
+                {min: 0, mult: 1.1, text: "0-2%", color: "green"},
+                {min: 3, mult: 1.0, text: "3-5%", color: "blue"},
+                {min: 6, mult: 0.9, text: "6-8%", color: "yellow"},
+                {min: 9, mult: 0.8, text: "9-12%", color: "orange"},
+                {min: 13, mult: 0.7, text: "13%+", color: "red"}
+            ]
+        }
+    },
+    
+    // Nombres personalizables de bonos
+    nombres: {
+        base: "Salario Base",
+        carrera: "Bono de Carrera",
+        interno: "Bono Interno",
+        externo: "Bono Externo",
+        recuperado: "Bono Recuperado",
+        cantidad: "Bono por Cantidad",
+        equipo: "Bono de Equipo"
+    },
+    
+    // Configuración de llaves (switches)
+    llaves: {
+        llave6Desembolsos: true,
+        llaveSemanal: true
     }
-    // ... otros multiplicadores
+};
+```
+
+## 🔧 FUNCIONES PRINCIPALES
+
+### Funciones de base de datos (app.js):
+
+```javascript
+// Conexión y configuración
+async function obtenerConfiguracion(clave = null) {
+    const { data, error } = await supabase
+        .from('configuracion_sistema')
+        .select('*');
+    // Retorna configuración completa o específica
+}
+
+async function actualizarConfiguracion(clave, valor) {
+    const { data, error } = await supabase
+        .from('configuracion_sistema')
+        .upsert({
+            clave: clave,
+            valor: valor,
+            updated_at: new Date().toISOString()
+        });
+}
+
+// Gestión de usuarios
+async function validarAsesor(nombre, password) {
+    const { data, error } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('nombre', nombre)
+        .eq('password', password)
+        .eq('activo', true);
+    return data && data.length > 0;
+}
+
+async function obtenerAsesores() {
+    const { data, error } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('activo', true);
+    return data || [];
+}
+
+// Historial de cálculos
+async function guardarCalculoEnHistorial(asesor, datosCalculo) {
+    const { data, error } = await supabase
+        .from('historial_calculos')
+        .insert({
+            asesor: asesor,
+            datos_calculo: datosCalculo,
+            resultado: calcularResultado(datosCalculo)
+        });
 }
 ```
 
-### **Beneficios del Sistema**
-1. **Flexibilidad Total**: Cada multiplicador es completamente personalizable
-2. **Facilidad de Uso**: Interfaz visual e intuitiva
-3. **Escalabilidad**: Agregar nuevos tipos de multiplicadores fácilmente
-4. **Transparencia**: Los asesores ven exactamente cómo se calculan sus bonos
-5. **Optimización**: Ajustar multiplicadores según performance real
-
-## 👥 Asesores Configurados
-
-| Asesor | Contraseña | Estado |
-|--------|-----------|---------|
-| Base | `20` | ✅ Activo |
-| Alejandra | `comercial2020` | ✅ Activo |
-| Aletzia | `comercial2020` | ✅ Activo |
-| Alvaro | `comercial2020` | ✅ Activo |
-| Erika | `comercial2020` | ✅ Activo |
-| Juan | `comercial2020` | ✅ Activo |
-| Maximiliano | `comercial2027` | ✅ Activo |
-| Micaela | `comercial2026` | ✅ Activo |
-| Rodrigo | `comercial2028` | ✅ Activo |
-
-## 🔐 Acceso de Administrador
-
-- **Usuario**: Administrador
-- **Contraseña**: `gtadmin`
-- **URL**: `/admin.html`
-
-## 🚀 Despliegue
-
-### **Render (Recomendado)**
-1. Crear cuenta en Render
-2. Conectar repositorio de GitHub
-3. Configurar como "Static Site"
-4. Configurar variables de entorno de Supabase
-5. Desplegar automáticamente
-
-### **Otras Opciones:**
-
-1. **GitHub Pages**
-   - Subir código a GitHub
-   - Activar GitHub Pages
-   - Configurar dominio personalizado
-
-2. **Netlify**
-   - Conectar repositorio de GitHub
-   - Despliegue automático
-   - HTTPS gratuito
-
-3. **Vercel**
-   - Importar proyecto desde GitHub
-   - Despliegue instantáneo
-   - Dominio personalizado
-
-## 📊 API de Supabase
-
-### **Funciones Disponibles:**
+### Funciones de cálculo (app.js):
 
 ```javascript
-// Obtener todos los asesores
-const asesores = await obtenerAsesores();
+// Cálculo de multiplicadores
+function calcularMultiplicador(tipo, valor) {
+    const multiplicador = config.multiplicadores[tipo];
+    if (!multiplicador) return 1;
+    
+    const rangos = multiplicador.rangos;
+    if (multiplicador.invertido) {
+        // Para mora: menor es mejor
+        for (let i = 0; i < rangos.length; i++) {
+            if (valor <= rangos[i].min + 2) {
+                return rangos[i].mult;
+            }
+        }
+    } else {
+        // Para otros: mayor es mejor
+        for (let i = 0; i < rangos.length; i++) {
+            if (valor >= rangos[i].min) {
+                return rangos[i].mult;
+            }
+        }
+    }
+    return 1;
+}
 
-// Validar login de asesor
-const esValido = await validarAsesor('Base', '20');
+// Cálculo de bonos por nivel
+function calcularBonoPorNivel(valor, metas, montos) {
+    for (let i = 0; i < metas.length; i++) {
+        if (valor >= metas[i]) {
+            return {
+                nivel: i,
+                bono: montos[i],
+                meta: metas[i]
+            };
+        }
+    }
+    return { nivel: -1, bono: 0, meta: 0 };
+}
 
-// Obtener configuración del sistema (incluye multiplicadores)
-const config = await obtenerConfiguracion('multiplicadores');
-
-// Actualizar configuración de multiplicadores
-await actualizarConfiguracion('multiplicadores', nuevosMultiplicadores);
-
-// Guardar cálculo en historial
-await guardarCalculoEnHistorial('Alejandra', datosCalculo);
-
-// Agregar nuevo asesor
-await agregarAsesor('Nuevo', 'password', 'email@ejemplo.com');
-
-// Eliminar asesor
-await eliminarAsesor('Nombre');
+// Cálculo principal
+function updateCalculations() {
+    // Obtener valores de inputs
+    const valores = obtenerValoresInputs();
+    
+    // Calcular bonos individuales
+    const bonos = {
+        base: config.base,
+        carrera: calcularBonoCarrera(valores.carreraActual, valores.carreraAnterior),
+        interno: calcularBonoInterno(valores.interno),
+        externo: calcularBonoExterno(valores.externo),
+        recuperado: calcularBonoRecuperado(valores.recuperado),
+        cantidad: calcularBonoCantidad(valores.cantidad),
+        equipo: calcularBonoEquipo(valores.equipo)
+    };
+    
+    // Calcular multiplicadores
+    const multiplicadores = {
+        conversion: calcularMultiplicador('conversion', valores.conversion),
+        empatia: calcularMultiplicador('empatia', valores.empatia),
+        proceso: calcularMultiplicador('proceso', valores.proceso),
+        mora: calcularMultiplicador('mora', valores.mora)
+    };
+    
+    // Calcular totales
+    const subtotal = Object.values(bonos).reduce((a, b) => a + b, 0);
+    const multiplicadorTotal = Object.values(multiplicadores).reduce((a, b) => a * b, 1);
+    const total = subtotal * multiplicadorTotal;
+    
+    // Actualizar interfaz
+    actualizarInterfaz(bonos, multiplicadores, subtotal, total);
+}
 ```
 
-## 🔄 Changelog
+### Funciones de administración (admin.js):
 
-### **v2.1.0** (Actual - Enero 2025)
-- ✅ **Sistema de Multiplicadores Configurables**: Editor visual completo
-- ✅ **Plantillas de Multiplicadores**: Configuraciones predefinidas
-- ✅ **Validación Avanzada**: Prevención de errores en configuración
-- ✅ **Previsualización en Tiempo Real**: Ver cambios antes de aplicar
-- ✅ **Interfaz Mejorada**: Mejor experiencia de usuario en el admin
-- ✅ **Documentación Unificada**: Toda la información en un solo lugar
+```javascript
+// Gestión de asesores
+async function agregarAsesor(nombre, password, email) {
+    const { data, error } = await supabase
+        .from('usuarios')
+        .insert({
+            nombre: nombre,
+            password: password,
+            activo: true
+        });
+    
+    if (!error && email) {
+        await supabase
+            .from('asesores')
+            .insert({
+                nombre: nombre,
+                email: email,
+                activo: true
+            });
+    }
+}
 
-### **v2.0.0** (Enero 2025)
-- ✅ **Arquitectura Simplificada**: Sistema unificado en la raíz
-- ✅ **Integración Completa Supabase**: Base de datos online
-- ✅ **Panel Admin Renovado**: Gestión completa desde una interfaz
-- ✅ **Nombres Personalizables**: Cambiar nombres de bonos
-- ✅ **Eliminación de Duplicados**: Un solo sistema para todos
-- ✅ **Optimización de Rendimiento**: Carga más rápida
-- ✅ **Documentación Completa**: Guías de uso y despliegue
+async function eliminarAsesor(nombre) {
+    await supabase
+        .from('usuarios')
+        .update({ activo: false })
+        .eq('nombre', nombre);
+        
+    await supabase
+        .from('asesores')
+        .update({ activo: false })
+        .eq('nombre', nombre);
+}
 
-### **v1.0.0**
-- ✅ Sistema base con archivos locales
-- ✅ Calculadora de comisiones
-- ✅ Panel de administración básico
-- ✅ Carpetas separadas por asesor
+// Gestión de multiplicadores
+function guardarMultiplicadores() {
+    const multiplicadores = recopilarMultiplicadores();
+    actualizarConfiguracion('multiplicadores', multiplicadores);
+}
 
-## 🛠️ Tecnologías Utilizadas
+function recopilarMultiplicadores() {
+    const multiplicadores = {};
+    
+    Object.keys(CONFIG_DEFAULT.multiplicadores).forEach(key => {
+        multiplicadores[key] = {
+            nombre: document.querySelector(`[data-mult="${key}"][data-field="nombre"]`).value,
+            icono: document.querySelector(`[data-mult="${key}"][data-field="icono"]`).value,
+            unidad: document.querySelector(`[data-mult="${key}"][data-field="unidad"]`).value,
+            descripcion: document.querySelector(`[data-mult="${key}"][data-field="descripcion"]`).value,
+            invertido: document.querySelector(`[data-mult="${key}"][data-field="invertido"]`).value === 'true',
+            rangos: recopilarRangos(key)
+        };
+    });
+    
+    return multiplicadores;
+}
+```
 
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Base de Datos**: Supabase (PostgreSQL)
-- **Autenticación**: Sistema propio con Supabase
-- **Reportes**: jsPDF
-- **Estilos**: CSS Grid, Flexbox, Variables CSS
-- **Iconos**: Unicode Emoji
+## 🎯 LÓGICA DE NEGOCIO
+
+### Flujo de cálculo de comisiones:
+
+1. **Entrada de datos**: Usuario ingresa valores en formulario
+2. **Validación**: Verificar que todos los campos sean válidos
+3. **Cálculo de bonos base**: Aplicar metas y obtener bonos individuales
+4. **Cálculo de multiplicadores**: Evaluar cada multiplicador según su configuración
+5. **Aplicación de multiplicadores**: Subtotal × multiplicador total
+6. **Actualización de interfaz**: Mostrar resultados y barras de progreso
+7. **Guardado en historial**: Registrar cálculo en base de datos
+
+### Algoritmo de multiplicadores:
+
+```javascript
+// Pseudocódigo para multiplicadores
+for cada multiplicador in config.multiplicadores:
+    valor_usuario = obtenerValorInput(multiplicador.tipo)
+    
+    if multiplicador.invertido:
+        // Para mora: menor es mejor
+        for rango in multiplicador.rangos:
+            if valor_usuario <= rango.min + tolerancia:
+                return rango.mult
+    else:
+        // Para otros: mayor es mejor
+        for rango in multiplicador.rangos (ordenados desc):
+            if valor_usuario >= rango.min:
+                return rango.mult
+    
+    return 1.0  // multiplicador neutro
+```
+
+## 👥 USUARIOS DEL SISTEMA
+
+### Asesores configurados:
+```javascript
+const ASESORES = [
+    { nombre: "Base", password: "20" },
+    { nombre: "Alejandra", password: "comercial2020" },
+    { nombre: "Aletzia", password: "comercial2020" },
+    { nombre: "Alvaro", password: "comercial2020" },
+    { nombre: "Erika", password: "comercial2020" },
+    { nombre: "Juan", password: "comercial2020" },
+    { nombre: "Maximiliano", password: "comercial2027" },
+    { nombre: "Micaela", password: "comercial2026" },
+    { nombre: "Rodrigo", password: "comercial2028" }
+];
+```
+
+### Administrador:
+```javascript
+const ADMIN = {
+    usuario: "Administrador",
+    password: "gtadmin",
+    permisos: ["gestionar_asesores", "configurar_sistema", "ver_reportes"]
+};
+```
+
+## 🔄 FLUJO DE DATOS
+
+```
+INPUT (Usuario) → VALIDACIÓN → CÁLCULO → MULTIPLICADORES → RESULTADO → HISTORIAL
+     ↓              ↓           ↓           ↓            ↓         ↓
+   Formulario   Validar JS   Bonos base   Aplicar mult.  Mostrar   Supabase
+```
+
+## 📊 ESTRUCTURA DE DATOS
+
+### Objeto de cálculo completo:
+```javascript
+const calculoCompleto = {
+    asesor: "Alejandra",
+    fecha: "2025-01-15T10:30:00Z",
+    inputs: {
+        carreraActual: 8500000,
+        carreraAnterior: 7000000,
+        interno: 125,
+        externo: 45,
+        recuperado: 22,
+        cantidad: 28,
+        equipo: 55000000,
+        conversion: 14,
+        empatia: 87,
+        proceso: 92,
+        mora: 4
+    },
+    bonos: {
+        base: 2500000,
+        carrera: 2000000,
+        interno: 1000000,
+        externo: 1500000,
+        recuperado: 2000000,
+        cantidad: 500000,
+        equipo: 3000000
+    },
+    multiplicadores: {
+        conversion: 1.0,
+        empatia: 1.0,
+        proceso: 1.0,
+        mora: 1.0
+    },
+    subtotal: 12500000,
+    multiplicadorTotal: 1.0,
+    total: 12500000
+};
+```
+
+## 🚀 DESPLIEGUE
+
+### Configuración para hosting estático:
+- **Archivos**: Solo HTML, CSS, JS (sin servidor)
+- **Base de datos**: Supabase (configurar RLS)
+- **Variables**: URL y Key de Supabase en app.js
+- **Hosting**: Render, Netlify, Vercel, GitHub Pages
+
+### Variables de entorno necesarias:
+```javascript
+const supabaseUrl = 'https://tu-proyecto.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+```
+
+## 🔧 MANTENIMIENTO
+
+### Tareas rutinarias:
+- Backup de configuración (exportar JSON)
+- Revisión de logs de errores
+- Actualización de asesores activos
+- Optimización de multiplicadores según performance
+
+### Monitoreo:
+- Errores en consola del navegador
+- Fallos de conexión a Supabase
+- Cálculos incorrectos
+- Performance de carga
+
+## 📝 NOTAS TÉCNICAS
+
 - **Arquitectura**: SPA (Single Page Application)
-
-## 📚 Documentación Adicional
-
-- **[ARQUITECTURA.md](./ARQUITECTURA.md)**: Documentación técnica detallada
-- **[estructura-multiplicadores.md](./estructura-multiplicadores.md)**: Especificación completa del sistema de multiplicadores
-
-## 🔧 Configuración de Supabase
-
-### Variables de Entorno Requeridas:
-```javascript
-const SUPABASE_URL = 'tu_url_de_supabase'
-const SUPABASE_KEY = 'tu_clave_publica_de_supabase'
-```
-
-### Configuración en `app.js`:
-```javascript
-// Configurar en líneas 4-5
-const supabaseUrl = 'TU_URL_AQUÍ';
-const supabaseKey = 'TU_CLAVE_AQUÍ';
-```
-
-## 📞 Soporte y Troubleshooting
-
-### **Problemas Comunes:**
-
-1. **Error de Conexión a Supabase**
-   - Verificar URL y clave en `app.js`
-   - Comprobar políticas RLS en Supabase
-   - Revisar consola del navegador
-
-2. **Asesor No Encontrado**
-   - Verificar que el asesor esté en la tabla `usuarios`
-   - Comprobar que `activo = true`
-   - Revisar contraseña correcta
-
-3. **Cálculos Incorrectos**
-   - Verificar configuración en tabla `configuracion_sistema`
-   - Comprobar multiplicadores en el admin
-   - Revisar valores base actualizados
-
-4. **Problemas con Multiplicadores**
-   - Verificar que no haya solapamientos en rangos
-   - Comprobar que los multiplicadores sean números válidos
-   - Revisar la previsualización antes de guardar
-
-### **Logs y Depuración:**
-- Abrir herramientas de desarrollador (F12)
-- Revisar consola para errores
-- Verificar tab "Network" para errores de API
-
-## 📝 Licencia
-
-Este proyecto es de uso interno para SERSA.
+- **Persistencia**: Supabase (PostgreSQL)
+- **Autenticación**: Custom con validación en tabla usuarios
+- **Reportes**: jsPDF para generación de PDF
+- **Responsive**: CSS Grid y Flexbox
+- **Compatibilidad**: Navegadores modernos (ES6+)
 
 ---
 
-**Desarrollado con ❤️ para el equipo de SERSA**  
-**Sistema de Comisiones v2.1 - Enero 2025** 
+**Sistema de Comisiones SERSA v2.1**  
+**Documentación técnica completa para desarrollo e integración con IA** 
