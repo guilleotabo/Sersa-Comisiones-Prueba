@@ -68,6 +68,31 @@ const CONFIG_DEFAULT = {
 // Cargar asesores al iniciar
 window.addEventListener('DOMContentLoaded', async function() {
     await cargarAsesores();
+    
+    // Agregar evento para cambio dinámico de placeholder
+    const asesorSelect = document.getElementById('asesor-select');
+    const passwordInput = document.getElementById('password-input');
+    
+    asesorSelect.addEventListener('change', function() {
+        const asesorSeleccionado = this.value;
+        if (asesorSeleccionado) {
+            passwordInput.placeholder = `Contraseña para ${asesorSeleccionado}`;
+            passwordInput.disabled = false;
+        } else {
+            passwordInput.placeholder = 'Primero selecciona un asesor';
+            passwordInput.disabled = true;
+            passwordInput.value = '';
+        }
+        // Limpiar errores
+        document.getElementById('login-error').style.display = 'none';
+    });
+    
+    // Permitir Enter para hacer login
+    passwordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            verificarContrasena();
+        }
+    });
 });
 
 // FUNCIÓN 1: Cargar lista de asesores
@@ -101,6 +126,8 @@ async function cargarAsesores() {
 async function verificarContrasena() {
     const asesor = document.getElementById('asesor-select').value;
     const password = document.getElementById('password-input').value;
+    const loginBtn = document.querySelector('.login-btn');
+    const originalText = loginBtn.innerHTML;
     
     if (!asesor) {
         mostrarError('Por favor selecciona un asesor');
@@ -111,6 +138,10 @@ async function verificarContrasena() {
         mostrarError('Por favor ingresa tu contraseña');
         return;
     }
+    
+    // Mostrar estado de carga
+    loginBtn.innerHTML = '<span class="btn-text">Verificando...</span><span class="btn-icon">⏳</span>';
+    loginBtn.disabled = true;
     
     try {
         // Verificar usuario y contraseña directamente en tabla users
@@ -125,16 +156,27 @@ async function verificarContrasena() {
         if (error) throw error;
         
         if (data.password_hash === password) {
+            mostrarExito(`¡Bienvenido ${asesor}!`);
             asesorActual = asesor;
             asesorActualId = data.id;
             await cargarConfiguracion(data.id);
-            mostrarSistema();
+            
+            // Pequeña pausa para mostrar el mensaje de éxito
+            setTimeout(() => {
+                mostrarSistema();
+            }, 1000);
         } else {
             mostrarError('Contraseña incorrecta');
         }
     } catch (error) {
         console.error('Error verificando contraseña:', error);
-        mostrarError('Error al verificar contraseña');
+        mostrarError('Error al verificar contraseña. Verifica tu conexión.');
+    } finally {
+        // Restaurar botón
+        setTimeout(() => {
+            loginBtn.innerHTML = originalText;
+            loginBtn.disabled = false;
+        }, 1000);
     }
 }
 
@@ -210,9 +252,32 @@ function mostrarError(mensaje) {
     const errorDiv = document.getElementById('login-error');
     errorDiv.textContent = mensaje;
     errorDiv.style.display = 'block';
+    
+    // Agregar efecto de shake al contenedor
+    const loginContainer = document.querySelector('.login-container');
+    loginContainer.style.animation = 'shake 0.5s ease';
+    
     setTimeout(() => {
         errorDiv.style.display = 'none';
-    }, 3000);
+        loginContainer.style.animation = '';
+    }, 4000);
+}
+
+// FUNCIÓN 6.1: Mostrar éxito
+function mostrarExito(mensaje) {
+    const errorDiv = document.getElementById('login-error');
+    errorDiv.textContent = mensaje;
+    errorDiv.style.display = 'block';
+    errorDiv.style.color = '#27ae60';
+    errorDiv.style.background = 'rgba(39, 174, 96, 0.1)';
+    errorDiv.style.borderColor = 'rgba(39, 174, 96, 0.2)';
+    
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+        errorDiv.style.color = '#e74c3c';
+        errorDiv.style.background = 'rgba(231, 76, 60, 0.1)';
+        errorDiv.style.borderColor = 'rgba(231, 76, 60, 0.2)';
+    }, 2000);
 }
 
 // FUNCIÓN 7: Obtener configuración base (por defecto)
