@@ -282,6 +282,23 @@
             font-size: 13px;
         }
         
+        .btn-delete {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        
+        /* ========================================
+           ROLE BADGE
+           ======================================== */
+        .role-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+        
         /* ========================================
            STATUS BADGES
            ======================================== */
@@ -612,7 +629,8 @@
         <!-- Tabs de navegación -->
         <div class="admin-tabs">
             <button class="tab-button active" onclick="cambiarTab('asesores')">👥 Asesores</button>
-            <button class="tab-button" onclick="cambiarTab('config')">⚙️ Configuración</button>
+            <button class="tab-button" onclick="cambiarTab('config-individual')">⚙️ Configurar Asesores</button>
+            <button class="tab-button" onclick="cambiarTab('config')">🌐 Config. Global</button>
         </div>
 
         <!-- Contenido de las tabs -->
@@ -628,20 +646,223 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Email</th>
+                                <th>Rol</th>
+                                <th>Fecha Creación</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="asesores-tbody">
-                            <tr><td colspan="4">Cargando asesores...</td></tr>
+                            <tr><td colspan="7">Cargando asesores...</td></tr>
                         </tbody>
                     </table>
                 </section>
             </div>
             
-            <!-- Tab de Configuración General -->
+            <!-- Tab de Configuración Individual -->
+            <div id="tab-config-individual" class="tab-content">
+                <section class="admin-section">
+                    <h3>⚙️ Configuración Individual por Asesor</h3>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <label for="asesor-selector" style="display: block; margin-bottom: 10px; font-weight: 600;">Seleccionar Asesor:</label>
+                        <select id="asesor-selector" onchange="cargarConfiguracionAsesor()" style="padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 8px; width: 300px;">
+                            <option value="">-- Selecciona un asesor --</option>
+                        </select>
+                        <button class="btn-admin btn-secondary" onclick="copiarConfiguracion()" style="margin-left: 15px;">📋 Copiar Config</button>
+                    </div>
+                    
+                    <div id="config-asesor-content" style="display: none;">
+                        <div class="config-grid">
+                            <div class="config-section">
+                                <h4>💰 Base Fija</h4>
+                                <input type="text" id="config-asesor-base" class="admin-input" onkeyup="formatearInputAdmin(this)">
+                            </div>
+                            
+                            <div class="config-section">
+                                <h4>📊 Nombres de Niveles</h4>
+                                <div class="config-levels">
+                                    <input type="text" id="config-asesor-nivel-0" placeholder="Nivel 1">
+                                    <input type="text" id="config-asesor-nivel-1" placeholder="Nivel 2">
+                                    <input type="text" id="config-asesor-nivel-2" placeholder="Nivel 3">
+                                    <input type="text" id="config-asesor-nivel-3" placeholder="Nivel 4">
+                                    <input type="text" id="config-asesor-nivel-4" placeholder="Nivel 5">
+                                    <input type="text" id="config-asesor-nivel-5" placeholder="Nivel 6">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4>🎯 Metas por Nivel</h4>
+                        <div class="config-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nivel</th>
+                                        <th>Monto Interno</th>
+                                        <th>Monto Externo</th>
+                                        <th>Recuperados</th>
+                                        <th>Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 1</td>
+                                        <td><input type="text" id="config-asesor-meta-montoInterno-0" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoExterno-0" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoRecuperado-0" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="number" id="config-asesor-meta-cantidad-0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 2</td>
+                                        <td><input type="text" id="config-asesor-meta-montoInterno-1" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoExterno-1" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoRecuperado-1" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="number" id="config-asesor-meta-cantidad-1"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 3</td>
+                                        <td><input type="text" id="config-asesor-meta-montoInterno-2" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoExterno-2" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoRecuperado-2" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="number" id="config-asesor-meta-cantidad-2"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 4</td>
+                                        <td><input type="text" id="config-asesor-meta-montoInterno-3" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoExterno-3" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoRecuperado-3" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="number" id="config-asesor-meta-cantidad-3"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 5</td>
+                                        <td><input type="text" id="config-asesor-meta-montoInterno-4" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoExterno-4" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoRecuperado-4" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="number" id="config-asesor-meta-cantidad-4"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 6</td>
+                                        <td><input type="text" id="config-asesor-meta-montoInterno-5" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoExterno-5" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-meta-montoRecuperado-5" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="number" id="config-asesor-meta-cantidad-5"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <h4>💎 Bonos/Pagos por Nivel</h4>
+                        <div class="config-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nivel</th>
+                                        <th>Carrera</th>
+                                        <th>Monto Interno</th>
+                                        <th>Monto Externo</th>
+                                        <th>Recuperados</th>
+                                        <th>Cantidad</th>
+                                        <th>Equipo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 1</td>
+                                        <td><input type="text" id="config-asesor-pago-carrera-0" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoInterno-0" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoExterno-0" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoRecuperado-0" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-cantidad-0" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-equipo-0" onkeyup="formatearInputAdmin(this)"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 2</td>
+                                        <td><input type="text" id="config-asesor-pago-carrera-1" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoInterno-1" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoExterno-1" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoRecuperado-1" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-cantidad-1" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-equipo-1" onkeyup="formatearInputAdmin(this)"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 3</td>
+                                        <td><input type="text" id="config-asesor-pago-carrera-2" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoInterno-2" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoExterno-2" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoRecuperado-2" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-cantidad-2" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-equipo-2" onkeyup="formatearInputAdmin(this)"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 4</td>
+                                        <td><input type="text" id="config-asesor-pago-carrera-3" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoInterno-3" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoExterno-3" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoRecuperado-3" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-cantidad-3" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-equipo-3" onkeyup="formatearInputAdmin(this)"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 5</td>
+                                        <td><input type="text" id="config-asesor-pago-carrera-4" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoInterno-4" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoExterno-4" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoRecuperado-4" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-cantidad-4" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-equipo-4" onkeyup="formatearInputAdmin(this)"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nivel-label">Nivel 6</td>
+                                        <td><input type="text" id="config-asesor-pago-carrera-5" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoInterno-5" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoExterno-5" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-montoRecuperado-5" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-cantidad-5" onkeyup="formatearInputAdmin(this)"></td>
+                                        <td><input type="text" id="config-asesor-pago-equipo-5" onkeyup="formatearInputAdmin(this)"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <h4>📝 Nombres de Bonos</h4>
+                        <div class="config-names">
+                            <div class="name-group">
+                                <label>Bono Interno:</label>
+                                <input type="text" id="config-asesor-nombre-interno" placeholder="📊 MONTO INTERNO - Meta desembolso | Bono">
+                            </div>
+                            <div class="name-group">
+                                <label>Bono Externo:</label>
+                                <input type="text" id="config-asesor-nombre-externo" placeholder="💎 MONTO EXTERNO/REFERENCIADO - Meta | Bono">
+                            </div>
+                            <div class="name-group">
+                                <label>Bono Cantidad:</label>
+                                <input type="text" id="config-asesor-nombre-cantidad" placeholder="🎯 CANTIDAD DESEMBOLSOS - Meta | Bono | Llave">
+                            </div>
+                            <div class="name-group">
+                                <label>Bono Recuperados:</label>
+                                <input type="text" id="config-asesor-nombre-recuperados" placeholder="🔄 RECUPERADOS +3 MESES - Meta | Bono">
+                            </div>
+                            <div class="name-group">
+                                <label>Bono Carrera:</label>
+                                <input type="text" id="config-asesor-nombre-carrera" placeholder="📈 BONO CARRERA - Según menor nivel entre mes actual y anterior">
+                            </div>
+                            <div class="name-group">
+                                <label>Bono Equipo:</label>
+                                <input type="text" id="config-asesor-nombre-equipo" placeholder="👥 BONO EQUIPO - Según menor nivel del equipo">
+                            </div>
+                        </div>
+                        
+                        <button class="btn-admin btn-primary" onclick="guardarConfiguracionAsesor()">
+                            💾 Guardar Configuración del Asesor
+                        </button>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Tab de Configuración Global -->
             <div id="tab-config" class="tab-content">
                 <section class="admin-section">
                     <h3>⚙️ Configuración General del Sistema</h3>
