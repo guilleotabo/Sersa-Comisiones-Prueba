@@ -235,10 +235,15 @@ async function guardarConfiguracion() {
             if (input) config.nombres_bonos[tipo] = input.value;
         });
         
-        // Guardar en Supabase (actualizar configuración global)
+        // Guardar en Supabase (upsert configuración global)
         const { error } = await supabase
             .from('settings')
-            .update({ config: config })
+            .upsert({ 
+                tipo: 'global',
+                user_id: null,
+                config: config,
+                activo: true 
+            })
             .eq('tipo', 'global')
             .is('user_id', null);
         
